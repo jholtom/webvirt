@@ -2,6 +2,7 @@
     Common functions
 """
 
+import atexit
 import libvirt
 import subprocess
 
@@ -56,5 +57,12 @@ def run_proc(exe):
             break
 ### On-import executions ###
 
-# Open main hypervisor connection
+# Open connection to local hypervisor
 conn = libvirt.open(None)
+
+# Cleanup hypervisor connection
+def virt_cleanup():
+    global conn
+    conn.close()
+
+atexit.register(virt_cleanup)
