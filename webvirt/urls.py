@@ -215,15 +215,14 @@ class Upload:
 
     def POST(self):
         x = web.input(myfile={})
-        filedir = '/var/hackfiles/' # change this to the directory you want to store the file in.
         if 'myfile' in x: # to check if the file-object is created
             filepath=x.myfile.filename.replace('\\','/') # replaces the windows-style slashes with linux ones.
             filename=filepath.split('/')[-1] # splits the and chooses the last part (the filename with extension)
             fout = open(filedir +'/'+ filename,'w') # creates the file where the uploaded file should be stored
             fout.write(x.myfile.file.read()) # writes the uploaded file to the newly created file.
             fout.close() # closes the file, upload complete.
-            if magic.from_file(filedir + filename, mime=True) != "application/x-iso9660-image":
-                os.remove(filedir + filename)
+            if magic.from_file(config.datadir + filename, mime=True) != "application/x-iso9660-image":
+                os.remove(config.datadir + filename)
                 raise web.seeother('http://' + config.site + '/hackathon/upload?bad=1')
         raise web.seeother('http://' + config.site + '/hackathon/upload')
 
@@ -259,18 +258,18 @@ class HD:
        if not form.validates():
            return render.formtest(form)
        else:
-           os.system('cd /var/hackfiles && qemu-img create ' + form['name'].value + ".qcow2 " + form['size'].value + 'G')
+           os.system('cd ' + config.datadir +  ' && qemu-img create ' + form['name'].value + ".qcow2 " + form['size'].value + 'G')
            web.seeother("http://" + config.site + "/hackathon/")
 
 class ListHD:
     def GET(self):
         auth.verify_auth("http://" + config.site + "/hackathon/login")
         templates = web.template.render('webvirt/templates/')
-        files = os.listdir('/var/hackfiles/')
+        files = os.listdir(config.datadir)
         files = [x for x in files if x.endswith('.qcow2')]
         sizes = []
         for f in files:
-            for line in common.run_proc(['qemu-img', 'info', '/var/hackfiles/' + f]):
+            for line in common.run_proc(['qemu-img', 'info', config.datadir + f]):
                 if "virtual size" in line:
                     sizes.append(line.split(' ')[2])
         pack = zip(files, sizes)
