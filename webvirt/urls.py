@@ -104,7 +104,7 @@ class Create:
                 web.form.Textbox("mem",web.form.notnull,web.form.regexp('\d+', 'Must be a digit'),description="Amount of Memory (in KiB): ",align='left'),
                 web.form.Textbox("cpu",web.form.notnull,web.form.regexp('\d+', 'Must be a digit'),description="Number of Virtual Processors: ",align='left'),
                 web.form.Textbox("hd",web.form.notnull,description='Full Path to hard drive file: ',align='left'),
-                web.form.Textbox("iso",web.form.notnull,description="Full Path to cdrom iso file (e.x /var/hackfiles/gentoo.iso): ",align='left'),
+                web.form.Textbox("iso",web.form.notnull,description="Full Path to cdrom iso file (e.x " + config.datadir + "gentoo.iso): ",align='left'),
                 web.form.Textbox("vnc",web.form.notnull,description="VNC Port Number: ",align='left'),
                 web.form.Textbox("pts",web.form.notnull,web.form.regexp('\d+', 'Must be a digit'),description="PTS number for serial console: ",align='left')
                 )
@@ -126,8 +126,8 @@ class Create:
                 web.form.Textbox("name",web.form.notnull,description="Name of Virtual Machine: ",align='left'),
                 web.form.Textbox("mem",web.form.notnull,web.form.regexp('\d+', 'Must be a digit'),description="Amount of Memory (in KiB): ",align='left'),
                 web.form.Textbox("cpu",web.form.notnull,web.form.regexp('\d+', 'Must be a digit'),description="Number of Virtual Processors: :",align='left'),
-                web.form.Textbox("hd",web.form.notnull,description="Full Path to hard drive file (e.x /var/hackfiles/$name.qcow2): ",align='left'),
-                web.form.Textbox("iso",web.form.notnull,description="Full Path to cdrom iso file (e.x /var/hackfiles/gentoo.iso): ",align='left'),
+                web.form.Textbox("hd",web.form.notnull,description="Full Path to hard drive file (e.x " + config.datadir + "$name.qcow2): ",align='left'),
+                web.form.Textbox("iso",web.form.notnull,description="Full Path to cdrom iso file (e.x " + config.datadir + "gentoo.iso): ",align='left'),
                 web.form.Textbox("vnc",web.form.notnull,description="VNC Port Number: ",align='left'),
                 web.form.Textbox("pts",web.form.notnull,web.form.regexp('\d+', 'Must be a digit'),description="PTS number for serial console: ",align='left')
                 )
@@ -275,7 +275,8 @@ class ListHD:
         pack = zip(files, sizes)
         contents='<h2>Available Hard Drives</h2><table class="table"><tr><td><b>Name</b></td><td><b>Size</b></td></tr>'
         for f, size in pack:
-            contents += "<tr><td>/var/hackfiles/%s</td><td>%s</td></tr>" % (f, size)
+            contents += "<tr><td>" + config.datadir
+            contents += "%s</td><td>%s</td></tr>" % (f, size)
         contents += "</table>"
         data = ""
         for dom in conn.listAllDomains(0):
@@ -292,15 +293,16 @@ class ListISOs:
     def GET(self):
         auth.verify_auth("http://" + config.site + "/hackathon/login")
         templates = web.template.render('webvirt/templates/')
-        files = os.listdir('/var/hackfiles/')
+        files = os.listdir(config.datadir)
         files = [x for x in files if x.endswith('.iso')]
         sizes = []
         for f in files:
-            sizes.append(hsize(os.path.getsize('/var/hackfiles/' + f)))
+            sizes.append(hsize(os.path.getsize(config.datadir + f)))
         pack = zip(files, sizes)
         contents = '<h2>Available ISOs</h2><table class="table"><tr><td><b>Name</b></td><td><b>Size</b></td></tr>'
         for f, size in pack:
-            contents += "<tr><td>/var/hackfiles/%s</td><td>%s</td></tr>" % (f, size)
+            contents += "<tr><td>" + config.datadir
+            contents += "%s</td><td>%s</td></tr>" % (f, size)
         contents += "</table>"
         data = ""
         for dom in conn.listAllDomains(0):
