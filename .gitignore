@@ -1,0 +1,6 @@
+/update-waitaha.sh
+/restartwebpy.sh
+*.pyc
+*.pyo
+__pycache__
+/u
