@@ -54,3 +54,6 @@ def run_proc(exe):
         yield line
         if retcode is not None:
             break
+
+# Open main hypervisor connection
+conn = libvirt.open(None)

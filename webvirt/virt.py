@@ -1,5 +1,5 @@
 import libvirt
-from connection import conn
+from common import conn
 import common
 
 class Domain:

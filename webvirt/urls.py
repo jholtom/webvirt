@@ -3,9 +3,9 @@
 """
 import auth
 import common
+from common import conn
 import config
 import libvirt
-from connection import conn
 import virt
 import web
 import os
