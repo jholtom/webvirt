@@ -3,4 +3,5 @@ WebVirt Configuration
 """
 
 name = "WebVirt"
-urlprefix = "localhost"
+site = "example.com"
+urlprefix = "/hackathon"

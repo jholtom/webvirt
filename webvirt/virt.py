@@ -40,9 +40,9 @@ class Domain:
                 "mempct": self.mempct
                 }
 
-        class HostServer:
-            def __init__(self):
-                self.hostname = conn.getHostname()
+class HostServer:
+    def __init__(self):
+        self.hostname = conn.getHostname()
         self.hosttype = conn.getType()
         self.caps = conn.getCapabilities()
         self.cpustats = conn.getCPUStats(libvirt.VIR_NODE_CPU_STATS_ALL_CPUS,0)
@@ -53,37 +53,37 @@ class Domain:
 
     def createDomain(self,name,mem,cpu,hd,iso,vnc,pts):
         dom = conn.defineXML("""
-              <domain type="kvm">
-                   <name>%s</name>
-                   <memory>%s</memory>
-                   <vcpu>%s</vcpu>
-                   <os>
-                        <type arch="x86_64">hvm</type>
-                        <boot dev="cdrom"/>
-                   </os>
-                   <devices>
-                       <disk type="block" device="disk">
-                            <source dev="%s"/>
-                            <target dev="hda" bus="virtio"/>
-                       </disk>
-                       <disk type='file' device='cdrom'>
-                            <source file='%s'/>
-                            <target dev='hdc' bus='ide' tray='closed'/>
-                            <readonly/>
-                       </disk>
-                       <interface type="bridge" >
-                           <mac address="02:00:c6:26:13:19"/>
-                           <source bridge="vbr1900"/>
-                           <model type="virtio"/>
-                       </interface>
-                       <graphics type="vnc" port="%s" autoport="no"/>
-                       <console type='pty'>
-                           <source path='/dev/pts/%s' />
-                           <target type='serial' port='0' />
-                       </console>
-                    </devices>
-                </domain>
-                """ % (name,mem,cpu,hd,iso,vnc,pts))
+        <domain type="kvm">
+            <name>%s</name>
+            <memory>%s</memory>
+            <vcpu>%s</vcpu>
+            <os>
+                <type arch="x86_64">hvm</type>
+                <boot dev="cdrom"/>
+            </os>
+            <devices>
+                <disk type="block" device="disk">
+                    <source dev="%s"/>
+                    <target dev="hda" bus="virtio"/>
+                </disk>
+                <disk type='file' device='cdrom'>
+                    <source file='%s'/>
+                    <target dev='hdc' bus='ide' tray='closed'/>
+                    <readonly/>
+                </disk>
+                <interface type="bridge" >
+                    <mac address="02:00:c6:26:13:19"/>
+                    <source bridge="vbr1900"/>
+                    <model type="virtio"/>
+                </interface>
+                <graphics type="vnc" port="%s" autoport="no"/>
+                <console type='pty'>
+                    <source path='/dev/pts/%s' />
+                    <target type='serial' port='0' />
+                </console>
+            </devices>
+        </domain>
+        """ % (name,mem,cpu,hd,iso,vnc,pts))
         self.domains.append(dom)
         return dom
 

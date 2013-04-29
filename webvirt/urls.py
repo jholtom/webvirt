@@ -16,7 +16,7 @@ from hurry.filesize import size as hsize
 
 class Index:
     def GET(self):
-        auth.verify_auth("http://" + config.urlprefix + "/hackathon/login")
+        auth.verify_auth("http://" + config.site + "/hackathon/login")
         templates = web.template.render('webvirt/templates/')
         content = ""
         numVMs = float(len(conn.listAllDomains(0)))
@@ -48,13 +48,13 @@ class Index:
                 data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-important'>" + dom.state + "</span></div></a></li>"
             else:
                 data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-warning'>" + dom.state + "</span></div></a></li>"
-        return templates.index(content, data,web.cookies().get("session"))
+        return templates.index(content, data,web.cookies().get("session"), config.site)
 
 class VM:
     def GET(self):
         cookies = web.cookies()
         if cookies.get("session") == None:
-            web.seeother("http://" + config.urlprefix + "/hackathon/login")
+            web.seeother("http://" + config.site + "/hackathon/login")
         templates = web.template.render('webvirt/templates/')
         data2 = web.input()
         content = ""
@@ -81,7 +81,7 @@ class VM:
         #mempct = str(vmdict['mempct']) + '%'
         #content += str(templates.vmmemory(mempct))
         content += "<br /><br />"
-        content += "<a href='http://" + config.urlprefix + "/novnc/vnc.html?host=www.tjhsst.edu&port=6080'><button class=\"btn btn-info\">Launch Display Connection</button></a>"  
+        content += "<a href='http://" + config.site + "/novnc/vnc.html?host=www.tjhsst.edu&port=6080'><button class=\"btn btn-info\">Launch Display Connection</button></a>"  
         data = ""
         for dom in conn.listAllDomains(0):
             dom = virt.Domain(dom)
@@ -91,13 +91,13 @@ class VM:
                 data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-important'>" + dom.state + "</span></div></a></li>"
             else:
                 data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-warning'>" + dom.state + "</span></div></a></li>"
-        return templates.vm(content, data, vm,web.cookies().get("session"))
+        return templates.vm(content, data, vm, web.cookies().get("session"), config.site)
 
 class Create:
     def GET(self):
         cookies = web.cookies()
         if cookies.get("session") == None:
-            web.seeother("http://" + config.urlprefix + "/hackathon/login")
+            web.seeother("http://" + config.site + "/hackathon/login")
         templates = web.template.render('webvirt/templates/')
         myform = web.form.Form( 
                 web.form.Textbox("name",web.form.notnull,description="Name of Virtual Machine: ",align='left'),
@@ -119,7 +119,7 @@ class Create:
                 data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-important'>" + dom.state + "</span></div></a></li>"
             else:
                 data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-warning'>" + dom.state + "</span></div></a></li>"
-        return templates.create(content, data,form,web.cookies().get("session"))
+        return templates.create(content, data,form,web.cookies().get("session"), config.site)
 
     def POST(self): 
         myform = web.form.Form( 
@@ -137,7 +137,7 @@ class Create:
         else:
             hs = virt.HostServer()
             hs.createDomain(form['name'].value, form['mem'].value, form['cpu'].value, form['hd'].value, form['iso'].value, form['vnc'].value ,form['pts'].value)
-            web.seeother("http://" + config.urlprefix + "/hackathon/")  
+            web.seeother("http://" + config.site + "/hackathon/")
 
 class Auth:
     def GET(self):
@@ -153,31 +153,31 @@ class Auth:
                 if 'redirect' in data:
                     web.seeother(data['redirect'])
                 else:
-                    web.seeother("http://" + config.urlprefix + "/hackathon/")
+                    web.seeother("http://" + config.site + "/hackathon/")
             else:
-                web.seeother("http://" + config.urlprefix + "/hackathon/login?failed=1")
+                web.seeother("http://" + config.site + "/hackathon/login?failed=1")
         except Exception as e:
             return "Caught " + str(e) + " on login auth"
 
 class Logout:
     def GET(self):
         auth.destroy_session()
-        web.seeother("http://" + config.urlprefix + "/hackathon/")
+        web.seeother("http://" + config.site + "/hackathon/")
 
 class Login:
     def GET(self):
         if auth.verify_auth():
-            web.seeother("http://" + config.urlprefix + "/hackathon/")
+            web.seeother("http://" + config.site + "/hackathon/")
         templates = web.template.render('webvirt/templates/')
         data = web.input()
         if "failed" in data:
-            return templates.login('<span><p style="color:#FF0000">Failed Login</p></span>')
+            return templates.login('<span><p style="color:#FF0000">Failed Login</p></span>', config.site)
         else:
-            return templates.login('')
+            return templates.login('', config.site)
 
 class List:
     def GET(self):
-        auth.verify_auth("http://" + config.urlprefix + "/hackathon/login")
+        auth.verify_auth("http://" + config.site + "/hackathon/login")
         data = []
         for dom in conn.listAllDomains(0):
             data[dom] = Domain(dom)
@@ -185,7 +185,7 @@ class List:
 
 class Console:
     def GET(self):
-        auth.verify_auth("http://" + config.urlprefix + "/hackathon/login")
+        auth.verify_auth("http://" + config.site + "/hackathon/login")
         templates = web.template.render('webvirt/templates/')
         return templates.console()
 
@@ -211,7 +211,7 @@ class Upload:
             else:
                 data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-warning'>" + dom.state + "</span></div></a></li>"
         templates = web.template.render("webvirt/templates/")
-        return templates.index(content, data, web.cookies().get("session"))
+        return templates.index(content, data, web.cookies().get("session"), config.site)
 
     def POST(self):
         x = web.input(myfile={})
@@ -224,14 +224,14 @@ class Upload:
             fout.close() # closes the file, upload complete.
             if magic.from_file(filedir + filename, mime=True) != "application/x-iso9660-image":
                 os.remove(filedir + filename)
-                raise web.seeother('http://' + config.urlprefix + '/hackathon/upload?bad=1')
-        raise web.seeother('http://' + config.urlprefix + '/hackathon/upload')
+                raise web.seeother('http://' + config.site + '/hackathon/upload?bad=1')
+        raise web.seeother('http://' + config.site + '/hackathon/upload')
 
 class HD:
     def GET(self):
        cookies = web.cookies()
        if cookies.get("session") == None:
-           web.seeother("http://" + config.urlprefix + "/hackathon/login")
+           web.seeother("http://" + config.site + "/hackathon/login")
        templates = web.template.render('webvirt/templates/')
        myform = web.form.Form(
                web.form.Textbox("name",web.form.notnull,description="Name of Hard Drive: ",align='left'),
@@ -248,7 +248,7 @@ class HD:
                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-important'>" + dom.state + "</span></div></a></li>"
            else:
                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-warning'>" + dom.state + "</span></div></a></li>"
-       return templates.create(content, data,form,web.cookies().get("session"))
+       return templates.create(content, data,form,web.cookies().get("session"), config.site)
 
     def POST(self):
        myform = web.form.Form(
@@ -260,11 +260,11 @@ class HD:
            return render.formtest(form)
        else:
            os.system('cd /var/hackfiles && qemu-img create ' + form['name'].value + ".qcow2 " + form['size'].value + 'G')
-           web.seeother("http://" + config.urlprefix + "/hackathon/")
+           web.seeother("http://" + config.site + "/hackathon/")
 
 class ListHD:
     def GET(self):
-        auth.verify_auth("http://" + config.urlprefix + "/hackathon/login")
+        auth.verify_auth("http://" + config.site + "/hackathon/login")
         templates = web.template.render('webvirt/templates/')
         files = os.listdir('/var/hackfiles/')
         files = [x for x in files if x.endswith('.qcow2')]
@@ -287,11 +287,11 @@ class ListHD:
                 data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-important'>" + dom.state + "</span></div></a></li>"
             else:
                 data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-warning'>" + dom.state + "</span></div></a></li>"
-        return templates.index(contents, data, web.cookies().get("session"))
+        return templates.index(contents, data, web.cookies().get("session"), config.site)
 
 class ListISOs:
     def GET(self):
-        auth.verify_auth("http://" + config.urlprefix + "/hackathon/login")
+        auth.verify_auth("http://" + config.site + "/hackathon/login")
         templates = web.template.render('webvirt/templates/')
         files = os.listdir('/var/hackfiles/')
         files = [x for x in files if x.endswith('.iso')]
@@ -312,6 +312,6 @@ class ListISOs:
                 data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-important'>" + dom.state + "</span></div></a></li>"
             else:
                 data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-warning'>" + dom.state + "</span></div></a></li>"
-        return templates.index(contents, data, web.cookies().get("session"))
+        return templates.index(contents, data, web.cookies().get("session"), config.site)
 
 classes  = globals()
