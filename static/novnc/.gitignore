@@ -1,0 +1,4 @@
+*.pyc
+*.o
+tests/data_*.js
+utils/rebind.so

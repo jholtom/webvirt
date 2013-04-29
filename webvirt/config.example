@@ -3,6 +3,8 @@ WebVirt Configuration
 """
 
 name = "WebVirt" # default = WebVirt
-site = "example.com" # default = example.com
+port = "" # default = ""
+domain = "example.com" # default = example.com
+site = domain + port
 urlprefix = "/hackathon" # default = /hackathon
 datadir = "/var/webvirt/" # default = /var/webvirt/
