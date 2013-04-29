@@ -16,19 +16,21 @@ from hurry.filesize import size as hsize
 
 class Index:
     def GET(self):
-        auth.verify_auth("http://" + config.site + "/hackathon/login")
+        auth.verify_auth("http://{0}{1}/login".format(config.site,config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         content = ""
         numVMs = float(len(conn.listAllDomains(0)))
-        perRunningVMs = 100 * (float(len(conn.listAllDomains(16)))) / numVMs
-        perSuspendVMs = 100 * (float(len(conn.listAllDomains(32)))) / numVMs
-        perShutoffVMs = 100 * (float(len(conn.listAllDomains(64)))) / numVMs #Should be numVMs
-        content += '<h2>VM State Statistics</h2><br />\n'
-        content += '<div class="progress">\n'
-        content += '  <div class="bar bar-success" style="width: ' + str(perRunningVMs) + '%;">Running</div>\n'
-        content += '  <div class="bar bar-warning" style="width: ' + str(perSuspendVMs) + '%;">Suspended</div>\n'
-        content += '  <div class="bar bar-danger" style="width: ' + str(perShutoffVMs) + '%;">Shut Down</div>\n'
-        content += '</div>\n'
+        # avoid div by 0
+        if numVMs > 0:
+            perRunningVMs = 100 * (float(len(conn.listAllDomains(16)))) / numVMs
+            perSuspendVMs = 100 * (float(len(conn.listAllDomains(32)))) / numVMs
+            perShutoffVMs = 100 * (float(len(conn.listAllDomains(64)))) / numVMs #Should be numVMs
+            content += '<h2>VM State Statistics</h2><br />\n'
+            content += '<div class="progress">\n'
+            content += '  <div class="bar bar-success" style="width: ' + str(perRunningVMs) + '%;">Running</div>\n'
+            content += '  <div class="bar bar-warning" style="width: ' + str(perSuspendVMs) + '%;">Suspended</div>\n'
+            content += '  <div class="bar bar-danger" style="width: ' + str(perShutoffVMs) + '%;">Shut Down</div>\n'
+            content += '</div>\n'
         data = ""
         hs = virt.HostServer()
         freemem, usedmem = common.pct_from_mem(hs.memstats)
@@ -43,18 +45,18 @@ class Index:
         for dom in conn.listAllDomains(0):   
             dom = virt.Domain(dom)
             if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
-                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-success'>" + dom.state + "</span></div></a></li>"
+                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-success'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF):
-                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-important'>" + dom.state + "</span></div></a></li>"
+                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
-                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-warning'>" + dom.state + "</span></div></a></li>"
-        return templates.index(content, data,web.cookies().get("session"), config.site)
+                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
+        return templates.index(content, data,web.cookies().get("session"), config.site, config.urlprefix)
 
 class VM:
     def GET(self):
         cookies = web.cookies()
         if cookies.get("session") == None:
-            web.seeother("http://" + config.site + "/hackathon/login")
+            web.seeother("http://{0}{1}/login".format(config.site,config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         data2 = web.input()
         content = ""
@@ -76,7 +78,13 @@ class VM:
                 content += '  <button type="button" class="close" data-dismiss="alert">&times;</button>'
             content += '  ' + vm + ' ' +  data2['action'] + ('p' if data2['action'] == 'stop' else '') + ('e' if data2['action'] != 'resume' else '') + 'd.'
             content += '</div>'
-        content += "<div class=\"btn-group\">\n<a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\">Power Options<span class=\"caret\"></span></a>\n<ul class=\"dropdown-menu\"><li    ><a href=\"/hackathon/vm?vm=" + vm + "&action=start\">Start</a></li>\n<li><a href=\"/hackathon/vm?vm=" + vm + "&action=stop\">Stop</a></li>\n<li><a href=\"/hackathon/vm?vm=" + vm + "&action=destroy\">Destroy</a></li>\n<li><a href=\"/hackathon/vm?vm=" + vm + "&action=suspend\">Suspend</a></li>\n<li><a href=\"/hackathon/vm?vm=" + vm + "&action=resume\">Resume</a></li></ul></div>"
+        content += """<div class="btn-group">
+        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">Power Options<span class="caret"></span></a>
+        <ul class="dropdown-menu"><li    ><a href="{0}/vm?vm={1}&action=start">Start</a></li>
+        <li><a href="{0}/vm?vm={1}&action=stop">Stop</a></li>
+        <li><a href="{0}/vm?vm={1}&action=destroy">Destroy</a></li>
+        <li><a href="{0}/vm?vm={1}&action=suspend">Suspend</a></li>
+        <li><a href="{0}/vm?vm={1}&action=resume">Resume</a></li></ul></div>""".format(config.urlprefix,vm)
         vmdict = domObj.get_dict()
         #mempct = str(vmdict['mempct']) + '%'
         #content += str(templates.vmmemory(mempct))
@@ -86,18 +94,18 @@ class VM:
         for dom in conn.listAllDomains(0):
             dom = virt.Domain(dom)
             if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
-                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-success'>" + dom.state + "</span></div></a></li>"
+                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-success'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF):
-                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-important'>" + dom.state + "</span></div></a></li>"
+                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
-                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-warning'>" + dom.state + "</span></div></a></li>"
-        return templates.vm(content, data, vm, web.cookies().get("session"), config.site)
+                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
+        return templates.vm(content, data, vm, web.cookies().get("session"), config.site, config.urlprefix)
 
 class Create:
     def GET(self):
         cookies = web.cookies()
         if cookies.get("session") == None:
-            web.seeother("http://" + config.site + "/hackathon/login")
+            web.seeother("http://{0}{1}/login".format(config.site,config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         myform = web.form.Form( 
                 web.form.Textbox("name",web.form.notnull,description="Name of Virtual Machine: ",align='left'),
@@ -114,12 +122,12 @@ class Create:
         for dom in conn.listAllDomains(0):
             dom = virt.Domain(dom)
             if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
-                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-success'>" + dom.state + "</span></div></a></li>"
+                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-success'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF):
-                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-important'>" + dom.state + "</span></div></a></li>"
+                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
-                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-warning'>" + dom.state + "</span></div></a></li>"
-        return templates.create(content, data,form,web.cookies().get("session"), config.site)
+                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
+        return templates.create(content, data,form,web.cookies().get("session"), config.site, config.urlprefix)
 
     def POST(self): 
         myform = web.form.Form( 
@@ -137,7 +145,7 @@ class Create:
         else:
             hs = virt.HostServer()
             hs.createDomain(form['name'].value, form['mem'].value, form['cpu'].value, form['hd'].value, form['iso'].value, form['vnc'].value ,form['pts'].value)
-            web.seeother("http://" + config.site + "/hackathon/")
+            web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
 
 class Auth:
     def GET(self):
@@ -153,31 +161,31 @@ class Auth:
                 if 'redirect' in data:
                     web.seeother(data['redirect'])
                 else:
-                    web.seeother("http://" + config.site + "/hackathon/")
+                    web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
             else:
-                web.seeother("http://" + config.site + "/hackathon/login?failed=1")
+                web.seeother("http://{0}{1}/login?failed=1".format(config.site,config.urlprefix))
         except Exception as e:
             return "Caught " + str(e) + " on login auth"
 
 class Logout:
     def GET(self):
         auth.destroy_session()
-        web.seeother("http://" + config.site + "/hackathon/")
+        web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
 
 class Login:
     def GET(self):
         if auth.verify_auth():
-            web.seeother("http://" + config.site + "/hackathon/")
+            web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         data = web.input()
         if "failed" in data:
-            return templates.login('<span><p style="color:#FF0000">Failed Login</p></span>', config.site)
+            return templates.login('<span><p style="color:#FF0000">Failed Login</p></span>', config.site, config.urlprefix)
         else:
-            return templates.login('', config.site)
+            return templates.login('', config.site, config.urlprefix)
 
 class List:
     def GET(self):
-        auth.verify_auth("http://" + config.site + "/hackathon/login")
+        auth.verify_auth("http://{0}{1}/login".format(config.site,config.urlprefix))
         data = []
         for dom in conn.listAllDomains(0):
             data[dom] = Domain(dom)
@@ -185,7 +193,7 @@ class List:
 
 class Console:
     def GET(self):
-        auth.verify_auth("http://" + config.site + "/hackathon/login")
+        auth.verify_auth("http://{0}{1}/login".format(config.site,config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         return templates.console()
 
@@ -205,13 +213,13 @@ class Upload:
         for dom in conn.listAllDomains(0):
             dom = virt.Domain(dom)
             if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
-                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-success'>" + dom.state + "</span></div></a></li>"
+                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-success'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF):
-                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-important'>" + dom.state + "</span></div></a></li>"
+                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
-                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-warning'>" + dom.state + "</span></div></a></li>"
+                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
         templates = web.template.render("webvirt/templates/")
-        return templates.index(content, data, web.cookies().get("session"), config.site)
+        return templates.index(content, data, web.cookies().get("session"), config.site, config.urlprefix)
 
     def POST(self):
         x = web.input(myfile={})
@@ -223,14 +231,14 @@ class Upload:
             fout.close() # closes the file, upload complete.
             if magic.from_file(config.datadir + filename, mime=True) != "application/x-iso9660-image":
                 os.remove(config.datadir + filename)
-                raise web.seeother('http://' + config.site + '/hackathon/upload?bad=1')
-        raise web.seeother('http://' + config.site + '/hackathon/upload')
+                raise web.seeother('http://{0}{1}/upload?bad=1'.format(config.site,config.urlprefix))
+        raise web.seeother('http://{0}{1}/upload'.format(config.site,config.urlprefix))
 
 class HD:
     def GET(self):
        cookies = web.cookies()
        if cookies.get("session") == None:
-           web.seeother("http://" + config.site + "/hackathon/login")
+           web.seeother("http://{0}{1}/login".format(config.site,config.urlprefix))
        templates = web.template.render('webvirt/templates/')
        myform = web.form.Form(
                web.form.Textbox("name",web.form.notnull,description="Name of Hard Drive: ",align='left'),
@@ -242,12 +250,12 @@ class HD:
        for dom in conn.listAllDomains(0):
            dom = virt.Domain(dom)
            if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
-               data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-success'>" + dom.state + "</span></div></a></li>"
+               data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-success'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
            elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF):
-               data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-important'>" + dom.state + "</span></div></a></li>"
+               data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
            else:
-               data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-warning'>" + dom.state + "</span></div></a></li>"
-       return templates.create(content, data,form,web.cookies().get("session"), config.site)
+               data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
+       return templates.create(content, data,form,web.cookies().get("session"), config.site, config.urlprefix)
 
     def POST(self):
        myform = web.form.Form(
@@ -259,11 +267,11 @@ class HD:
            return render.formtest(form)
        else:
            os.system('cd ' + config.datadir +  ' && qemu-img create ' + form['name'].value + ".qcow2 " + form['size'].value + 'G')
-           web.seeother("http://" + config.site + "/hackathon/")
+           web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
 
 class ListHD:
     def GET(self):
-        auth.verify_auth("http://" + config.site + "/hackathon/login")
+        auth.verify_auth("http://{0}{1}/login".format(config.site,config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         files = os.listdir(config.datadir)
         files = [x for x in files if x.endswith('.qcow2')]
@@ -282,16 +290,16 @@ class ListHD:
         for dom in conn.listAllDomains(0):
             dom = virt.Domain(dom)
             if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
-                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-success'>" + dom.state + "</span></div></a></li>"
+                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-success'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF):
-                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-important'>" + dom.state + "</span></div></a></li>"
+                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
-                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-warning'>" + dom.state + "</span></div></a></li>"
-        return templates.index(contents, data, web.cookies().get("session"), config.site)
+                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
+        return templates.index(contents, data, web.cookies().get("session"), config.site, config.urlprefix)
 
 class ListISOs:
     def GET(self):
-        auth.verify_auth("http://" + config.site + "/hackathon/login")
+        auth.verify_auth("http://{0}{1}/login".format(config.site,config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         files = os.listdir(config.datadir)
         files = [x for x in files if x.endswith('.iso')]
@@ -307,12 +315,12 @@ class ListISOs:
         data = ""
         for dom in conn.listAllDomains(0):
             dom = virt.Domain(dom)
-            if dom.rawstate == libvirt.VIR_DOMAIN_RUNNING:
-                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-success'>" + dom.state + "</span></div></a></li>"
-            elif dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF:
-                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-important'>" + dom.state + "</span></div></a></li>"
+            if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
+                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-success'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
+            elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF):
+                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
-                data += "<li><a href='/hackathon/vm?vm=" + dom.name + "'>" + dom.name + "<div class='pull-right'><span class='label label-warning'>" + dom.state + "</span></div></a></li>"
-        return templates.index(contents, data, web.cookies().get("session"), config.site)
+                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
+        return templates.index(contents, data, web.cookies().get("session"), config.site, config.urlprefix)
 
 classes  = globals()

@@ -1,4 +1,4 @@
-$def with (content,data,user,server)
+$def with (content,data,user,site,urlprefix)
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -47,13 +47,13 @@ $def with (content,data,user,server)
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="brand" href="/hackathon/">WebVirt</a>
+          <a class="brand" href="$urlprefix/">WebVirt</a>
           <div class="nav-collapse collapse">
             <p class="navbar-text pull-right">
-            Logged in as $:user | <a href="http://$server/hackathon/logout">Log out</a>
+            Logged in as $:user | <a href="http://$site$urlprefix/logout">Log out</a>
             </p>
             <ul class="nav">
-              <li class="active"><a href="/hackathon/">Virtual Machines</a></li>
+              <li class="active"><a href="$urlprefix/">Virtual Machines</a></li>
               <li><a href="mailto:ahamilto@tjhsst.edu?subject=WolframAndrew Question" target="_blank">Help (Wolfram Andrew)</a></li>
             </ul>
           </div><!--/.nav-collapse -->
@@ -69,12 +69,12 @@ $def with (content,data,user,server)
               <li class="nav-header">Virtual Machines</li>
 	      $:data
 	      <li class="nav-header">Actions</li>
-              <li><a href="/hackathon/create">New VM</a></li>
-              <!--<li><a href="/hackathon/console">VM Console</a></li>-->
-              <li><a href="/hackathon/hd">Create New Virtual HD</a></li>
-              <li><a href="/hackathon/upload">Upload CDROM ISO</a></li>
-              <li><a href="/hackathon/listhd">List HDs</a></li>
-              <li><a href="/hackathon/listisos">List ISOs</a></li>
+              <li><a href="$urlprefix/create">New VM</a></li>
+              <!--<li><a href="$urlprefix/console">VM Console</a></li>-->
+              <li><a href="$urlprefix/hd">Create New Virtual HD</a></li>
+              <li><a href="$urlprefix/upload">Upload CDROM ISO</a></li>
+              <li><a href="$urlprefix/listhd">List HDs</a></li>
+              <li><a href="$urlprefix/listisos">List ISOs</a></li>
             </ul>
           </div><!--/.well -->
         </div><!--/span-->
