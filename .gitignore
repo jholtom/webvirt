@@ -4,3 +4,4 @@
 *.pyo
 __pycache__
 /u
+/webvirt/config.py
