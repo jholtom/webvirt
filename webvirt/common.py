@@ -55,14 +55,15 @@ def run_proc(exe):
         yield line
         if retcode is not None:
             break
-### On-import executions ###
-
-# Open connection to local hypervisor
-conn = libvirt.open(None)
 
 # Cleanup hypervisor connection
 def virt_cleanup():
     global conn
     conn.close()
 
+### On-import executions ###
+
+# Open connection to local hypervisor
+conn = libvirt.open(None)
+# Register exit function
 atexit.register(virt_cleanup)
