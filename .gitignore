@@ -1,6 +1,5 @@
-/restartwebpy.sh
 *.pyc
 *.pyo
 __pycache__
-/u
 /webvirt/config.py
+*.sw?
