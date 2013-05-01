@@ -275,6 +275,8 @@ class ListHD:
     def GET(self):
         auth.verify_auth("http://{0}{1}/login".format(config.site,config.urlprefix))
         templates = web.template.render('webvirt/templates/')
+        if os.access(config.datadir,os.F_OK) == False:
+            os.mkdir(config.datadir)
         files = os.listdir(config.datadir)
         files = [x for x in files if x.endswith('.qcow2')]
         sizes = []
