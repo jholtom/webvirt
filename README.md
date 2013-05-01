@@ -13,6 +13,7 @@ In order to use WebVirt, the following dependencies must be installed:
 
 * [web.py](http://www.webpy.org)
 * [libvirt](http://www.libvirt.org)
+* [BeautifulSoup](http://www.crummy.com/software/BeautifulSoup)
 
 
 License
