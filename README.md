@@ -23,3 +23,4 @@ is bound by it's own licensing terms:
     
 * [pymagic](http://pypi.python.org/pypi/pymagic)
 * [hurry](http://pypi.python.org/pypi/hurry.filesize)
+* [novnc](https://github.com/kanaka/noVNC)
