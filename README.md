@@ -21,5 +21,5 @@ See the file titled 'LICENSE' for licensing information. Additionally,
 WebVirt is distributed with the following software, each of which
 is bound by it's own licensing terms:
     
-    * [pymagic](http://pypi.python.org/pypi/pymagic)
-    * [hurry](http://pypi.python.org/pypi/hurry.filesize)
+* [pymagic](http://pypi.python.org/pypi/pymagic)
+* [hurry](http://pypi.python.org/pypi/hurry.filesize)
