@@ -39,6 +39,7 @@ class Domain:
                 "memused": self.memused,
                 "mempct": self.mempct
                 }
+
     def getXML(self):
         return BeautifulSoup(self.dom.XMLDesc(),'xml')
 

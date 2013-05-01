@@ -95,8 +95,8 @@ class VM:
             content += '<div class="alert">VNC is not configured for this VM.</div>'
         else:
             button = ""
-        common.setupProxy(vncport)
-        content += "<a href='http://{0}/static/novnc/vnc.html?host={1}&port={2}'><button {3} class=\"btn btn-info\">Launch Display Connection</button></a>".format(config.site,config.domain,vncport,button)
+            common.setupProxy(vncport)
+        content += "<a href='http://{0}/static/novnc/vnc.html?host={1}&port={2}'><button {3} class=\"btn btn-info\">Launch Display Connection</button></a>".format(config.site,config.domain,vncport+1000,button)
         data = ""
         for dom in conn.listAllDomains(0):
             dom = virt.Domain(dom)
@@ -120,7 +120,7 @@ class Create:
                 web.form.Textbox("cpu",web.form.notnull,web.form.regexp('\d+', 'Must be a digit'),description="Number of Virtual Processors: ",align='left'),
                 web.form.Textbox("hd",web.form.notnull,description='Full Path to hard drive file: ',align='left'),
                 web.form.Textbox("iso",web.form.notnull,description="Full Path to cdrom iso file (e.x " + config.datadir + "gentoo.iso): ",align='left'),
-                web.form.Textbox("vnc",web.form.notnull,description="VNC Port Number: ",align='left'),
+                web.form.Textbox("vnc",web.form.notnull,description="VNC Port Number (5901+): ",align='left'),
                 web.form.Textbox("pts",web.form.notnull,web.form.regexp('\d+', 'Must be a digit'),description="PTS number for serial console: ",align='left')
                 )
         form = myform()

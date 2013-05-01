@@ -3,8 +3,11 @@
 """
 
 import atexit
+import config
 import libvirt
 import subprocess
+
+proxylist = {}
 
 def parse_post(data):
     ret = {}
@@ -37,7 +40,10 @@ def getState(state):
 
 #FIXME: move away from websockify.
 def setupProxy(vncport):
-    return True
+    global proxylist
+    devnull = open('/dev/null','w')
+    if vncport not in proxylist:
+        proxylist[vncport] = subprocess.Popen(['./static/novnc/utils/websockify',str(vncport+1000),config.domain+':'+str(vncport)],stdout=devnull)
 
 def allinfo(doms):
     ret = {}
@@ -62,7 +68,9 @@ def run_proc(exe):
 
 # Cleanup hypervisor connection
 def virt_cleanup():
-    global conn
+    global conn, proxylist
+    for proc in proxylist.itervalues():
+        proc.terminate()
     conn.close()
 
 ### On-import executions ###
