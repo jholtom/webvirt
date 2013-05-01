@@ -39,6 +39,18 @@ class Domain:
                 "memused": self.memused,
                 "mempct": self.mempct
                 }
+    def getXML(self):
+        return BeautifulSoup(self.dom.XMLDesc(),'xml')
+
+    def setXML(self,xml):
+        return conn.defineXML(str(xml))
+
+    def getVNC(self):
+        xml = self.getXML()
+        if xml.domain.devices.graphics != None:
+            return xml.domain.devices.graphics.attrs['port']
+        else:
+            return -1
 
 class HostServer:
     def __init__(self):

@@ -3,7 +3,7 @@
 """
 import auth
 import common
-from common import conn
+from common import conn, setupProxy
 import config
 import libvirt
 import virt
@@ -88,8 +88,10 @@ class VM:
         vmdict = domObj.get_dict()
         #mempct = str(vmdict['mempct']) + '%'
         #content += str(templates.vmmemory(mempct))
+        vncport = domObj.getVNC()
+        common.setupProxy(vncport)
         content += "<br /><br />"
-        content += "<a href='http://{0}/static/novnc/vnc.html?host={1}&port=6080'><button class=\"btn btn-info\">Launch Display Connection</button></a>".format(config.site,config.domain)
+        content += "<a href='http://{0}/static/novnc/vnc.html?host={1}&port={2}'><button class=\"btn btn-info\">Launch Display Connection</button></a>".format(config.site,config.domain,vncport)
         data = ""
         for dom in conn.listAllDomains(0):
             dom = virt.Domain(dom)

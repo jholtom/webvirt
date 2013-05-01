@@ -35,6 +35,10 @@ def getState(state):
     else:
         raise Exception("This should never happen. state=" + state)
 
+#FIXME: move away from websockify.
+def setupProxy(vncport):
+    return True
+
 def allinfo(doms):
     ret = {}
     for dom in doms:
