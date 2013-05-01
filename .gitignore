@@ -1,4 +1,3 @@
-/update-waitaha.sh
 /restartwebpy.sh
 *.pyc
 *.pyo
