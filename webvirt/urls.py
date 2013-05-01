@@ -88,10 +88,15 @@ class VM:
         vmdict = domObj.get_dict()
         #mempct = str(vmdict['mempct']) + '%'
         #content += str(templates.vmmemory(mempct))
-        vncport = domObj.getVNC()
-        common.setupProxy(vncport)
         content += "<br /><br />"
-        content += "<a href='http://{0}/static/novnc/vnc.html?host={1}&port={2}'><button class=\"btn btn-info\">Launch Display Connection</button></a>".format(config.site,config.domain,vncport)
+        vncport = domObj.getVNC()
+        if vncport == -1:
+            button = "disabled"
+            content += '<div class="alert">VNC is not configured for this VM.</div>'
+        else:
+            button = ""
+        common.setupProxy(vncport)
+        content += "<a href='http://{0}/static/novnc/vnc.html?host={1}&port={2}'><button {3} class=\"btn btn-info\">Launch Display Connection</button></a>".format(config.site,config.domain,vncport,button)
         data = ""
         for dom in conn.listAllDomains(0):
             dom = virt.Domain(dom)

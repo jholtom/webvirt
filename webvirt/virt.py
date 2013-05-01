@@ -48,7 +48,7 @@ class Domain:
     def getVNC(self):
         xml = self.getXML()
         if xml.domain.devices.graphics != None:
-            return xml.domain.devices.graphics.attrs['port']
+            return int(xml.domain.devices.graphics.attrs['port'])
         else:
             return -1
 
