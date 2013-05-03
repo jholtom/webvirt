@@ -226,7 +226,7 @@ class Upload:
         if 'myfile' in x: # to check if the file-object is created
             filepath=x.myfile.filename.replace('\\','/') # replaces the windows-style slashes with linux ones.
             filename=filepath.split('/')[-1] # splits the and chooses the last part (the filename with extension)
-            fout = open(filedir +'/'+ filename,'w') # creates the file where the uploaded file should be stored
+            fout = open(config.datadir +'/'+ filename,'w') # creates the file where the uploaded file should be stored
             fout.write(x.myfile.file.read()) # writes the uploaded file to the newly created file.
             fout.close() # closes the file, upload complete.
             if magic.from_file(config.datadir + filename, mime=True) != "application/x-iso9660-image":
@@ -267,7 +267,7 @@ class HD:
            return render.formtest(form)
        else:
            os.system('cd ' + config.datadir +  ' && qemu-img create ' + form['name'].value + ".qcow2 " + form['size'].value + 'G')
-           web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
+           web.seeother("http://{0}{1}/".format(config.site,config.urlprefix))
 
 class ListHD:
     def GET(self):
