@@ -145,7 +145,7 @@ class Create:
         else:
             hs = virt.HostServer()
             hs.createDomain(form['name'].value, form['mem'].value, form['cpu'].value, form['hd'].value, form['iso'].value, form['vnc'].value ,form['pts'].value)
-            web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
+            web.seeother("http://{0}{1}/".format(config.site,config.urlprefix))
 
 class Auth:
     def GET(self):
