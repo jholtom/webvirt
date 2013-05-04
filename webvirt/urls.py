@@ -152,7 +152,7 @@ class Create:
         else:
             hs = virt.HostServer()
             hs.createDomain(form['name'].value, form['mem'].value, form['cpu'].value, form['hd'].value, form['iso'].value, form['vnc'].value ,form['pts'].value)
-            web.seeother("http://{0}{1}/".format(config.site,config.urlprefix))
+            web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
 
 class Auth:
     def GET(self):
@@ -274,7 +274,7 @@ class HD:
            return render.formtest(form)
        else:
            os.system('cd ' + config.datadir +  ' && qemu-img create ' + form['name'].value + ".qcow2 " + form['size'].value + 'G')
-           web.seeother("http://{0}{1}/".format(config.site,config.urlprefix))
+           web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
 
 class ListHD:
     def GET(self):
