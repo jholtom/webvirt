@@ -1,4 +1,4 @@
-$def with (fail,site,urlprefix)
+$def with (fail,urlprefix)
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -65,7 +65,7 @@ $def with (fail,site,urlprefix)
         <h2 class="form-signin-heading">Login to WebVirt</h2>
         <input name="username" type="text" class="input-block-level" placeholder="Username">
         <input name="password" type="password" class="input-block-level" placeholder="Password">
-        <input type="hidden" name="redirect" value="http://$site$urlprefix/" />
+        <input type="hidden" name="redirect" value="$urlprefix/" />
         $:fail 
 	<button class="btn btn-large btn-primary" type="submit">Sign in</button>
       </form>

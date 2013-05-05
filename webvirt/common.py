@@ -6,6 +6,7 @@ import atexit
 import config
 import libvirt
 import subprocess
+import web
 
 proxylist = {}
 
@@ -43,7 +44,7 @@ def setupProxy(vncport):
     global proxylist
     devnull = open('/dev/null','w')
     if vncport not in proxylist:
-        site = config.site.split(':')[0]
+        site = web.ctx.host.split(':')[0]
         proxylist[vncport] = subprocess.Popen(['./static/novnc/utils/websockify',str(vncport+1000),site+':'+str(vncport)],stdout=devnull)
 
 def allinfo(doms):

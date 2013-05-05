@@ -1,4 +1,4 @@
-$def with (content,data,vm,user,site,urlprefix)
+$def with (content,data,vm,user,urlprefix)
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -50,7 +50,7 @@ $def with (content,data,vm,user,site,urlprefix)
           <a class="brand" href="$urlprefix/">WebVirt</a>
           <div class="nav-collapse collapse">
             <p class="navbar-text pull-right">
-              Logged in as $:user | <a href="http://$site$urlprefix/logout">Log out</a>
+              Logged in as $:user | <a href="$urlprefix/logout">Log out</a>
             </p>
             <ul class="nav">
               <li class="active"><a href="$urlprefix/">Virtual Machines</a></li>

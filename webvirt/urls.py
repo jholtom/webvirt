@@ -17,8 +17,7 @@ from hurry.filesize import size as hsize
 class Index:
     def GET(self):
         authenticator = auth.Authenticator()
-        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
-            config.urlprefix))
+        authenticator.verify_redirect("{0}/login".format(config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         content = ""
         numVMs = float(len(conn.listAllDomains(0)))
@@ -52,13 +51,12 @@ class Index:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.index(content, data, authenticator.verify_user(), config.site, config.urlprefix)
+        return templates.index(content, data, authenticator.verify_user(), config.urlprefix)
 
 class VM:
     def GET(self):
         authenticator = auth.Authenticator()
-        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
-            config.urlprefix))
+        authenticator.verify_redirect("{0}/login".format(config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         data2 = web.input()
         content = ""
@@ -98,8 +96,8 @@ class VM:
         else:
             button = ""
             common.setupProxy(vncport)
-        site = config.site.split(':')[0]
-        content += "<a href='http://{0}/static/novnc/vnc.html?host={1}&port={2}'><button {3} class=\"btn btn-info\">Launch Display Connection</button></a>".format(config.site,site,vncport+1000,button)
+        site = web.ctx.host.split(':')[0]
+        content += "<a href='{0}/static/novnc/vnc.html?host={1}&port={2}'><button {3} class=\"btn btn-info\">Launch Display Connection</button></a>".format(config.urlprefix,site,vncport+1000,button)
         data = ""
         for dom in conn.listAllDomains(0):
             dom = virt.Domain(dom)
@@ -109,13 +107,12 @@ class VM:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.vm(content, data, vm, authenticator.verify_user(), config.site, config.urlprefix)
+        return templates.vm(content, data, vm, authenticator.verify_user(), config.urlprefix)
 
 class Create:
     def GET(self):
         authenticator = auth.Authenticator()
-        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
-            config.urlprefix))
+        authenticator.verify_redirect("{0}/login".format(config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         myform = web.form.Form( 
                 web.form.Textbox("name",web.form.notnull,description="Name of Virtual Machine: ",align='left'),
@@ -137,7 +134,7 @@ class Create:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.create(content, data, form, authenticator.verify_user(), config.site, config.urlprefix)
+        return templates.create(content, data, form, authenticator.verify_user(), config.urlprefix)
 
     def POST(self): 
         myform = web.form.Form( 
@@ -155,7 +152,7 @@ class Create:
         else:
             hs = virt.HostServer()
             hs.createDomain(form['name'].value, form['mem'].value, form['cpu'].value, form['hd'].value, form['iso'].value, form['vnc'].value ,form['pts'].value)
-            web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
+            web.seeother(config.urlprefix)
 
 class Auth:
     def GET(self):
@@ -171,33 +168,32 @@ class Auth:
             if 'redirect' in data:
                 web.seeother(data['redirect'])
             else:
-                web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
+                web.seeother(config.urlprefix)
         else:
-            web.seeother("http://{0}{1}/login?failed=1".format(config.site,config.urlprefix))
+            web.seeother("{0}/login?failed=1".format(config.urlprefix))
 
 class Logout:
     def GET(self):
         authenticator = auth.Authenticator()
         authenticator.destroy_session()
-        web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
+        web.seeother(config.urlprefix)
 
 class Login:
     def GET(self):
         authenticator = auth.Authenticator()
         if authenticator.verify_user():
-            web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
+            web.seeother(config.urlprefix)
         templates = web.template.render('webvirt/templates/')
         data = web.input()
         if "failed" in data:
-            return templates.login('<span><p style="color:#FF0000">Failed Login</p></span>', config.site, config.urlprefix)
+            return templates.login('<span><p style="color:#FF0000">Failed Login</p></span>', config.urlprefix)
         else:
-            return templates.login('', config.site, config.urlprefix)
+            return templates.login('', config.urlprefix)
 
 class List:
     def GET(self):
         authenticator = auth.Authenticator()
-        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
-            config.urlprefix))
+        authenticator.verify_redirect("{0}/login".format(config.urlprefix))
         data = []
         for dom in conn.listAllDomains(0):
             data[dom] = Domain(dom)
@@ -206,16 +202,14 @@ class List:
 class Console:
     def GET(self):
         authenticator = auth.Authenticator()
-        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
-            config.urlprefix))
+        authenticator.verify_redirect("{0}/login".format(config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         return templates.console()
 
 class Upload:
     def GET(self):
         authenticator = auth.Authenticator()
-        authenticator.verify_redirect("http://{0}{1}/login".format(config.site,
-            config.urlprefix))
+        authenticator.verify_redirect("{0}/login".format(config.urlprefix))
         params = web.input()
         if 'bad' in params.keys() and int(params['bad']) == 1:
             return web.template.render("webvirt/templates/").index("<div class=\"alert\"><strong>Error! Your uploaded file was not an ISO file.</strong></div>", "", authenticator.verify_user())
@@ -236,7 +230,7 @@ class Upload:
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
         templates = web.template.render("webvirt/templates/")
-        return templates.index(content, data, authenticator.verify_user(), config.site, config.urlprefix)
+        return templates.index(content, data, authenticator.verify_user(), config.urlprefix)
 
     def POST(self):
         x = web.input(myfile={})
@@ -248,14 +242,13 @@ class Upload:
             fout.close() # closes the file, upload complete.
             if magic.from_file(config.datadir + filename, mime=True) != "application/x-iso9660-image":
                 os.remove(config.datadir + filename)
-                raise web.seeother('http://{0}{1}/upload?bad=1'.format(config.site,config.urlprefix))
-        raise web.seeother('http://{0}{1}/upload'.format(config.site,config.urlprefix))
+                raise web.seeother('{0}/upload?bad=1'.format(config.urlprefix))
+        raise web.seeother('{0}/upload'.format(config.urlprefix))
 
 class HD:
     def GET(self):
        authenticator = auth.Authenticator()
-       authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
-            config.urlprefix))
+       authenticator.verify_redirect("{0}/login".format(config.urlprefix))
        templates = web.template.render('webvirt/templates/')
        myform = web.form.Form(
                web.form.Textbox("name",web.form.notnull,description="Name of Hard Drive: ",align='left'),
@@ -272,7 +265,7 @@ class HD:
                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
            else:
                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-       return templates.create(content, data, form, authenticator.verify_user(), config.site, config.urlprefix)
+       return templates.create(content, data, form, authenticator.verify_user(), config.urlprefix)
 
     def POST(self):
        myform = web.form.Form(
@@ -284,13 +277,12 @@ class HD:
            return render.formtest(form)
        else:
            os.system('cd ' + config.datadir +  ' && qemu-img create ' + form['name'].value + ".qcow2 " + form['size'].value + 'G')
-           web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
+           web.seeother(config.urlprefix)
 
 class ListHD:
     def GET(self):
         authenticator = auth.Authenticator()
-        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
-            config.urlprefix))
+        authenticator.verify_redirect("{0}/login".format(config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         if os.access(config.datadir,os.F_OK) == False:
             os.mkdir(config.datadir)
@@ -316,13 +308,12 @@ class ListHD:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.index(contents, data, authenticator.verify_user(), config.site, config.urlprefix)
+        return templates.index(contents, data, authenticator.verify_user(), config.urlprefix)
 
 class ListISOs:
     def GET(self):
         authenticator = auth.Authenticator()
-        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
-            config.urlprefix))
+        authenticator.verify_redirect("{0}/login".format(config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         files = os.listdir(config.datadir)
         files = [x for x in files if x.endswith('.iso')]
@@ -344,6 +335,6 @@ class ListISOs:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.index(contents, data, authenticator.verify_user(), config.site, config.urlprefix)
+        return templates.index(contents, data, authenticator.verify_user(), config.urlprefix)
 
 classes  = globals()

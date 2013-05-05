@@ -3,7 +3,6 @@ WebVirt Configuration
 """
 
 name = "WebVirt" # default = WebVirt
-site = "example.com" # default = example.com
 urlprefix = "/webvirt" # default = /webvirt
 datadir = "/var/webvirt/" # default = /var/webvirt/
 db_path = "webvirt/webvirt.db" # default = webvirt/webvirt.db
