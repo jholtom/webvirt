@@ -2,7 +2,6 @@
     Common functions
 """
 
-import atexit
 import config
 import libvirt
 import subprocess
@@ -41,11 +40,10 @@ def getState(state):
 
 #FIXME: move away from websockify.
 def setupProxy(vncport):
-    global proxylist
     devnull = open('/dev/null','w')
     if vncport not in proxylist:
         site = web.ctx.host.split(':')[0]
-        proxylist[vncport] = subprocess.Popen(['./static/novnc/utils/websockify',str(vncport+1000),site+':'+str(vncport)],stdout=devnull)
+        web.ctx.proxylist[vncport] = subprocess.Popen(['./static/novnc/utils/websockify',str(vncport+1000),site+':'+str(vncport)],stdout=devnull)
 
 def allinfo(doms):
     ret = {}
@@ -67,17 +65,3 @@ def run_proc(exe):
         yield line
         if retcode is not None:
             break
-
-# Cleanup hypervisor connection
-def virt_cleanup():
-    global conn, proxylist
-    for proc in proxylist.itervalues():
-        proc.terminate()
-    conn.close()
-
-### On-import executions ###
-
-# Open connection to local hypervisor
-conn = libvirt.open(None)
-# Register exit function
-atexit.register(virt_cleanup)
