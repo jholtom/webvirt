@@ -51,7 +51,7 @@ class Index:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.index(content, data, web.ctx.username, config.site, config.urlprefix)
+        return templates.index(content, data, web.ctx.username, config.urlprefix)
 
 class VM:
     def GET(self):
@@ -107,7 +107,7 @@ class VM:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.vm(content, data, vm, web.ctx.username, config.site, config.urlprefix)
+        return templates.vm(content, data, vm, web.ctx.username, config.urlprefix)
 
 class Create:
     def GET(self):
@@ -134,7 +134,7 @@ class Create:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.create(content, data, form, web.ctx.username, config.site, config.urlprefix)
+        return templates.create(content, data, form, web.ctx.username, config.urlprefix)
 
     def POST(self): 
         myform = web.form.Form( 
@@ -229,7 +229,7 @@ class Upload:
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
         templates = web.template.render("webvirt/templates/")
-        return templates.index(content, data, web.ctx.username, config.site, config.urlprefix)
+        return templates.index(content, data, web.ctx.username, config.urlprefix)
 
     def POST(self):
         x = web.input(myfile={})
@@ -264,7 +264,7 @@ class HD:
                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
            else:
                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-       return templates.create(content, data, form, web.ctx.username, config.site, config.urlprefix)
+       return templates.create(content, data, form, web.ctx.username, config.urlprefix)
 
     def POST(self):
        myform = web.form.Form(
@@ -307,7 +307,7 @@ class ListHD:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.index(contents, data, web.ctx.username, config.site, config.urlprefix)
+        return templates.index(contents, data, web.ctx.username, config.urlprefix)
 
 class ListISOs:
     def GET(self):
@@ -334,6 +334,6 @@ class ListISOs:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.index(contents, data, web.ctx.username, config.site, config.urlprefix)
+        return templates.index(contents, data, web.ctx.username, config.urlprefix)
 
 classes  = globals()
