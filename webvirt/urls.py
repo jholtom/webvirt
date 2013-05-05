@@ -3,7 +3,7 @@
 """
 import auth
 import common
-from common import conn, setupProxy
+from common import setupProxy
 import config
 import libvirt
 import virt
@@ -19,6 +19,7 @@ class Index:
         if not web.ctx.auth:
             web.seeother("{0}/login".format(config.site_prefix))
         templates = web.template.render('webvirt/templates/')
+        conn = web.ctx.libvirt
         content = ""
         numVMs = float(len(conn.listAllDomains(0)))
         # avoid div by 0
@@ -58,6 +59,7 @@ class VM:
         if not web.ctx.auth:
             web.seeother("{0}/login".format(config.site_prefix))
         templates = web.template.render('webvirt/templates/')
+        conn = web.ctx.libvirt
         data2 = web.input()
         content = ""
         vm = data2['vm']
@@ -114,6 +116,7 @@ class Create:
         if not web.ctx.auth:
             web.seeother("{0}/login".format(config.site_prefix))
         templates = web.template.render('webvirt/templates/')
+        conn = web.ctx.libvirt
         myform = web.form.Form( 
                 web.form.Textbox("name",web.form.notnull,description="Name of Virtual Machine: ",align='left'),
                 web.form.Textbox("mem",web.form.notnull,web.form.regexp('\d+', 'Must be a digit'),description="Amount of Memory (in KiB): ",align='left'),
@@ -194,6 +197,7 @@ class List:
         if not web.ctx.auth:
             web.seeother("{0}/login".format(config.site_prefix))
         data = []
+        conn = web.ctx.libvirt
         for dom in conn.listAllDomains(0):
             data[dom] = Domain(dom)
         return web.template.render('webvirt/templates/').index(data)
@@ -210,6 +214,7 @@ class Upload:
         if not web.ctx.auth:
             web.seeother("{0}/login".format(config.site_prefix))
         params = web.input()
+        conn = web.ctx.libvirt
         if 'bad' in params.keys() and int(params['bad']) == 1:
             return web.template.render("webvirt/templates/").index("<div class=\"alert\"><strong>Error! Your uploaded file was not an ISO file.</strong></div>", "", web.ctx.username)
         content = """
@@ -254,6 +259,7 @@ class HD:
                web.form.Textbox("size",web.form.notnull,description="Size of Hard Drive (GB): ",align='left')
                )
        form = myform()
+       conn = web.ctx.libvirt
        data = ""
        content = "<h2>Create a New Virtual Machine Hard Drive</h2>"
        for dom in conn.listAllDomains(0):
@@ -299,6 +305,7 @@ class ListHD:
             contents += "%s</td><td>%s</td></tr>" % (f, size)
         contents += "</table>"
         data = ""
+        conn = web.ctx.libvirt
         for dom in conn.listAllDomains(0):
             dom = virt.Domain(dom)
             if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
@@ -326,6 +333,7 @@ class ListISOs:
             contents += "%s</td><td>%s</td></tr>" % (f, size)
         contents += "</table>"
         data = ""
+        conn = web.ctx.libvirt
         for dom in conn.listAllDomains(0):
             dom = virt.Domain(dom)
             if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):

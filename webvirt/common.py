@@ -40,11 +40,10 @@ def getState(state):
 
 #FIXME: move away from websockify.
 def setupProxy(vncport):
-    global proxylist
     devnull = open('/dev/null','w')
     if vncport not in proxylist:
         site = web.ctx.host.split(':')[0]
-        proxylist[vncport] = subprocess.Popen(['./static/novnc/utils/websockify',str(vncport+1000),site+':'+str(vncport)],stdout=devnull)
+        web.ctx.proxylist[vncport] = subprocess.Popen(['./static/novnc/utils/websockify',str(vncport+1000),site+':'+str(vncport)],stdout=devnull)
 
 def allinfo(doms):
     ret = {}

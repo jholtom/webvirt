@@ -1,6 +1,7 @@
 import libvirt
-from common import conn, getState
+from common import getState
 from bs4 import BeautifulSoup
+import web
 
 class Domain:
     def __init__(self, dom):
@@ -44,7 +45,7 @@ class Domain:
         return BeautifulSoup(self.dom.XMLDesc(),'xml')
 
     def setXML(self,xml):
-        return conn.defineXML(str(xml))
+        return web.ctx.libvirt.defineXML(str(xml))
 
     def getVNC(self):
         xml = self.getXML()
@@ -55,6 +56,7 @@ class Domain:
 
 class HostServer:
     def __init__(self):
+        conn = web.ctx.libvirt
         self.hostname = conn.getHostname()
         self.hosttype = conn.getType()
         self.caps = conn.getCapabilities()
@@ -91,7 +93,7 @@ class HostServer:
         dom.devices.graphics.attrs['type'] = 'vnc'
         dom.devices.graphics.attrs['port'] = vncport
 
-        virdom = conn.defineXML(str(xml))
+        virdom = web.ctx.libvirt.defineXML(str(xml))
         self.domains.append(virdom)
         return dom
 
@@ -100,7 +102,7 @@ def virt_processor(handle):
     web.ctx.libvirt = conn
     web.ctx.proxylist = {}
     ret = handle()
-    virt_cleanup(conn)
+    virt_cleanup(conn, web.ctx.proxylist)
     return ret
 
 def virt_cleanup(conn, proxylist={}):

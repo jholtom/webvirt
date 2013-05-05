@@ -23,4 +23,5 @@ urls = (
 if __name__ == '__main__':
     app = web.application(urls, webvirt.urls.classes)
     app.add_processor(webvirt.auth.authentication_processor)
+    app.add_processor(webvirt.virt.virt_processor)
     app.run()
