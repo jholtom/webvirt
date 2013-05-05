@@ -10,4 +10,4 @@ if port != "":
     site + ':' + port
 urlprefix = "/webvirt" # default = /webvirt
 datadir = "/var/webvirt/" # default = /var/webvirt/
-db_path = "webvirt.db"
+db_path = "webvirt/webvirt.db"
