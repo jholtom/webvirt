@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z "$1" ]; then
-    echo "Usage: setup.sh [database]"
+    echo "Usage: setupdb.sh [database]"
     exit
 fi
 
