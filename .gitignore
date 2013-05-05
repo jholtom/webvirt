@@ -2,5 +2,5 @@
 *.pyo
 __pycache__
 /webvirt/config.py
-/webvirt/webvirt.db
+*.db
 *.sw?
