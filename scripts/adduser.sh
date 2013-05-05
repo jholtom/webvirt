@@ -13,4 +13,6 @@ fi
 
 hash=`python2 -c "import bcrypt,getpass; print(bcrypt.hashpw(getpass.getpass(), bcrypt.gensalt()))"`
 sqlite3 $1 "INSERT INTO users VALUES('$2', '$hash')"
-echo "Done"
+if [ $? == 0 ]; then
+    echo "Success!"
+fi

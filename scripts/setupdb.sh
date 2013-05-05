@@ -10,6 +10,6 @@ if [ ! -f "$1" ]; then
     echo "SQLite3 will try to create it for you..."
 fi
 
-sqlite3 "$1" "CREATE TABLE users(username, password);"
+sqlite3 "$1" "CREATE TABLE users(username PRIMARY KEY, password);"
 sqlite3 "$1" "CREATE TABLE sessions(username, sid, ip);"
 echo "Done"
