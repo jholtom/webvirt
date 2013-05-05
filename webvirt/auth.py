@@ -27,7 +27,7 @@ class Authenticator:
             return False
         sid = self.gen_sid()
         ip_addr = web.ctx.ip
-        self.cursor.execute("INSERT INTO sessions VALUES (?, ?, ?)", (username, sid, ip_addr))
+        self.cursor.execute("INSERT INTO sessions VALUES (?, ?, ?)", (sid, username, ip_addr))
         self.db.commit()
         web.setcookie("session", sid)
         return True
@@ -42,7 +42,7 @@ class Authenticator:
         row = self.cursor.fetchone()
         if not row:
             return False
-        return row[0]
+        return row[1]
 
     def verify_redirect(self, url):
         if not self.verify_user():
@@ -50,10 +50,11 @@ class Authenticator:
         return True
 
     def destroy_session(self):
-        username = self.verify_user()
-        if not username:
+        cookies =  web.cookies()
+        sid = cookies.get("session")
+        if sid == None:
             return False
-        self.cursor.execute("DELETE FROM sessions WHERE username=?", (username,))
+        self.cursor.execute("DELETE FROM sessions WHERE sid=?", (sid,))
         self.db.commit()
         web.setcookie('session', '', expires=-1)
         return True

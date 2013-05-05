@@ -11,5 +11,5 @@ if [ ! -f "$1" ]; then
 fi
 
 sqlite3 "$1" "CREATE TABLE users(username PRIMARY KEY, password);"
-sqlite3 "$1" "CREATE TABLE sessions(username, sid, ip);"
+sqlite3 "$1" "CREATE TABLE sessions(sid PRIMARY KEY, username, ip);"
 echo "Done"
