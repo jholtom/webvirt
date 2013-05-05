@@ -152,7 +152,7 @@ class Create:
         else:
             hs = virt.HostServer()
             hs.createDomain(form['name'].value, form['mem'].value, form['cpu'].value, form['hd'].value, form['iso'].value, form['vnc'].value ,form['pts'].value)
-            web.seeother(config.urlprefix)
+            web.seeother('/'+config.urlprefix)
 
 class Auth:
     def GET(self):
@@ -168,7 +168,7 @@ class Auth:
             if 'redirect' in data:
                 web.seeother(data['redirect'])
             else:
-                web.seeother(config.urlprefix)
+                web.seeother('/'+config.urlprefix)
         else:
             web.seeother("{0}/login?failed=1".format(config.urlprefix))
 
@@ -176,7 +176,7 @@ class Logout:
     def GET(self):
         authenticator = web.ctx.authenticator
         authenticator.destroy_session()
-        web.seeother(config.urlprefix)
+        web.seeother('/'+config.urlprefix)
 
 class Login:
     def GET(self):
@@ -276,7 +276,7 @@ class HD:
            return render.formtest(form)
        else:
            os.system('cd ' + config.datadir +  ' && qemu-img create ' + form['name'].value + ".qcow2 " + form['size'].value + 'G')
-           web.seeother(config.urlprefix)
+           web.seeother('/'+config.urlprefix)
 
 class ListHD:
     def GET(self):
