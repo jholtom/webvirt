@@ -2,7 +2,7 @@
 import web
 import webvirt
 
-urlprefix = webvirt.config.urlprefix
+urlprefix = webvirt.config.site_prefix
 
 urls = (
         '{0}'.format(urlprefix), 'Index',
@@ -22,4 +22,5 @@ urls = (
 
 if __name__ == '__main__':
     app = web.application(urls, webvirt.urls.classes)
+    app.add_processor(webvirt.auth.authentication_processor)
     app.run()

@@ -16,9 +16,8 @@ from hurry.filesize import size as hsize
 
 class Index:
     def GET(self):
-        authenticator = auth.Authenticator()
-        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
-            config.urlprefix))
+        if not web.ctx.auth:
+            web.seeother("{0}/login".format(config.site_prefix))
         templates = web.template.render('webvirt/templates/')
         content = ""
         numVMs = float(len(conn.listAllDomains(0)))
@@ -52,13 +51,12 @@ class Index:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.index(content, data, authenticator.verify_user(), config.site, config.urlprefix)
+        return templates.index(content, data, web.ctx.username, config.site, config.urlprefix)
 
 class VM:
     def GET(self):
-        authenticator = auth.Authenticator()
-        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
-            config.urlprefix))
+        if not web.ctx.auth:
+            web.seeother("{0}/login".format(config.site_prefix))
         templates = web.template.render('webvirt/templates/')
         data2 = web.input()
         content = ""
@@ -108,13 +106,12 @@ class VM:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.vm(content, data, vm, authenticator.verify_user(), config.site, config.urlprefix)
+        return templates.vm(content, data, vm, web.ctx.username, config.site, config.urlprefix)
 
 class Create:
     def GET(self):
-        authenticator = auth.Authenticator()
-        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
-            config.urlprefix))
+        if not web.ctx.auth:
+            web.seeother("{0}/login".format(config.site_prefix))
         templates = web.template.render('webvirt/templates/')
         myform = web.form.Form( 
                 web.form.Textbox("name",web.form.notnull,description="Name of Virtual Machine: ",align='left'),
@@ -136,7 +133,7 @@ class Create:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.create(content, data, form, authenticator.verify_user(), config.site, config.urlprefix)
+        return templates.create(content, data, form, web.ctx.username, config.site, config.urlprefix)
 
     def POST(self): 
         myform = web.form.Form( 
@@ -176,15 +173,14 @@ class Auth:
 
 class Logout:
     def GET(self):
-        authenticator = auth.Authenticator()
+        authenticator = web.ctx.authenticator
         authenticator.destroy_session()
         web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
 
 class Login:
     def GET(self):
-        authenticator = auth.Authenticator()
-        if authenticator.verify_user():
-            web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
+        if web.ctx.auth:
+            web.seeother("{0}/".format(config.site_prefix))
         templates = web.template.render('webvirt/templates/')
         data = web.input()
         if "failed" in data:
@@ -194,9 +190,8 @@ class Login:
 
 class List:
     def GET(self):
-        authenticator = auth.Authenticator()
-        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
-            config.urlprefix))
+        if not web.ctx.auth:
+            web.seeother("{0}/login".format(config.site_prefix))
         data = []
         for dom in conn.listAllDomains(0):
             data[dom] = Domain(dom)
@@ -204,20 +199,18 @@ class List:
 
 class Console:
     def GET(self):
-        authenticator = auth.Authenticator()
-        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
-            config.urlprefix))
+        if not web.ctx.auth:
+            web.seeother("{0}/login".format(config.site_prefix))
         templates = web.template.render('webvirt/templates/')
         return templates.console()
 
 class Upload:
     def GET(self):
-        authenticator = auth.Authenticator()
-        authenticator.verify_redirect("http://{0}{1}/login".format(config.site,
-            config.urlprefix))
+        if not web.ctx.auth:
+            web.seeother("{0}/login".format(config.site_prefix))
         params = web.input()
         if 'bad' in params.keys() and int(params['bad']) == 1:
-            return web.template.render("webvirt/templates/").index("<div class=\"alert\"><strong>Error! Your uploaded file was not an ISO file.</strong></div>", "", authenticator.verify_user())
+            return web.template.render("webvirt/templates/").index("<div class=\"alert\"><strong>Error! Your uploaded file was not an ISO file.</strong></div>", "", web.ctx.username)
         content = """
         <h2>Upload CDROM/DVDROM ISO file</h2>
         <form method="POST" enctype="multipart/form-data" action="">
@@ -235,7 +228,7 @@ class Upload:
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
         templates = web.template.render("webvirt/templates/")
-        return templates.index(content, data, authenticator.verify_user(), config.site, config.urlprefix)
+        return templates.index(content, data, web.ctx.username, config.site, config.urlprefix)
 
     def POST(self):
         x = web.input(myfile={})
@@ -252,9 +245,8 @@ class Upload:
 
 class HD:
     def GET(self):
-       authenticator = auth.Authenticator()
-       authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
-            config.urlprefix))
+       if not web.ctx.auth:
+            web.seeother("{0}/login".format(config.site_prefix))
        templates = web.template.render('webvirt/templates/')
        myform = web.form.Form(
                web.form.Textbox("name",web.form.notnull,description="Name of Hard Drive: ",align='left'),
@@ -271,7 +263,7 @@ class HD:
                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
            else:
                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-       return templates.create(content, data, form, authenticator.verify_user(), config.site, config.urlprefix)
+       return templates.create(content, data, form, web.ctx.username, config.site, config.urlprefix)
 
     def POST(self):
        myform = web.form.Form(
@@ -287,9 +279,8 @@ class HD:
 
 class ListHD:
     def GET(self):
-        authenticator = auth.Authenticator()
-        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
-            config.urlprefix))
+        if not web.ctx.auth:
+            web.seeother("{0}/login".format(config.site_prefix))
         templates = web.template.render('webvirt/templates/')
         if os.access(config.datadir,os.F_OK) == False:
             os.mkdir(config.datadir)
@@ -315,13 +306,12 @@ class ListHD:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.index(contents, data, authenticator.verify_user(), config.site, config.urlprefix)
+        return templates.index(contents, data, web.ctx.username, config.site, config.urlprefix)
 
 class ListISOs:
     def GET(self):
-        authenticator = auth.Authenticator()
-        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
-            config.urlprefix))
+        if not web.ctx.auth:
+            web.seeother("{0}/login".format(config.site_prefix))
         templates = web.template.render('webvirt/templates/')
         files = os.listdir(config.datadir)
         files = [x for x in files if x.endswith('.iso')]
@@ -343,6 +333,6 @@ class ListISOs:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.index(contents, data, authenticator.verify_user(), config.site, config.urlprefix)
+        return templates.index(contents, data, web.ctx.username, config.site, config.urlprefix)
 
 classes  = globals()

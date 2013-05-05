@@ -9,5 +9,6 @@ site = domain
 if port != "":
     site += ':' + port
 urlprefix = "/webvirt" # default = /webvirt
+site_prefix = urlprefix # For Testing; Do not remove
 datadir = "/var/webvirt/" # default = /var/webvirt/
 db_path = "webvirt/webvirt.db" # default = webvirt/webvirt.db

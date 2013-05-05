@@ -85,3 +85,14 @@ class Authenticator:
             return False
         user_pass = user[1]
         return bcrypt.hashpw(password, user_pass) == user_pass
+
+def authentication_processor(handle):
+    authenticator = Authenticator()
+    user = authenticator.verify_user()
+    if user:
+        web.ctx.username = user
+        web.ctx.auth = True
+    else:
+        web.ctx.username = False
+        web.ctx.auth = False
+    return handle()
