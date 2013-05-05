@@ -52,7 +52,7 @@ class Index:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.index(content, data,web.cookies().get("session"), config.site, config.urlprefix)
+        return templates.index(content, data, authenticator.verify_user(), config.site, config.urlprefix)
 
 class VM:
     def GET(self):
@@ -108,7 +108,7 @@ class VM:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.vm(content, data, vm, web.cookies().get("session"), config.site, config.urlprefix)
+        return templates.vm(content, data, vm, authenticator.verify_user(), config.site, config.urlprefix)
 
 class Create:
     def GET(self):
@@ -136,7 +136,7 @@ class Create:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.create(content, data,form,web.cookies().get("session"), config.site, config.urlprefix)
+        return templates.create(content, data, form, authenticator.verify_user(), config.site, config.urlprefix)
 
     def POST(self): 
         myform = web.form.Form( 
@@ -212,9 +212,12 @@ class Console:
 
 class Upload:
     def GET(self):
+        authenticator = auth.Authenticator()
+        authenticator.verify_redirect("http://{0}{1}/login".format(config.site,
+            config.urlprefix))
         params = web.input()
         if 'bad' in params.keys() and int(params['bad']) == 1:
-            return web.template.render("webvirt/templates/").index("<div class=\"alert\"><strong>Error! Your uploaded file was not an ISO file.</strong></div>", "", web.cookies().get("session"))
+            return web.template.render("webvirt/templates/").index("<div class=\"alert\"><strong>Error! Your uploaded file was not an ISO file.</strong></div>", "", authenticator.verify_user())
         content = """
         <h2>Upload CDROM/DVDROM ISO file</h2>
         <form method="POST" enctype="multipart/form-data" action="">
@@ -232,7 +235,7 @@ class Upload:
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
         templates = web.template.render("webvirt/templates/")
-        return templates.index(content, data, web.cookies().get("session"), config.site, config.urlprefix)
+        return templates.index(content, data, authenticator.verify_user(), config.site, config.urlprefix)
 
     def POST(self):
         x = web.input(myfile={})
@@ -268,7 +271,7 @@ class HD:
                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
            else:
                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-       return templates.create(content, data,form,web.cookies().get("session"), config.site, config.urlprefix)
+       return templates.create(content, data, form, authenticator.verify_user(), config.site, config.urlprefix)
 
     def POST(self):
        myform = web.form.Form(
@@ -312,7 +315,7 @@ class ListHD:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.index(contents, data, web.cookies().get("session"), config.site, config.urlprefix)
+        return templates.index(contents, data, authenticator.verify_user(), config.site, config.urlprefix)
 
 class ListISOs:
     def GET(self):
@@ -340,6 +343,6 @@ class ListISOs:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
             else:
                 data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.index(contents, data, web.cookies().get("session"), config.site, config.urlprefix)
+        return templates.index(contents, data, authenticator.verify_user(), config.site, config.urlprefix)
 
 classes  = globals()

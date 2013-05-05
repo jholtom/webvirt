@@ -72,7 +72,6 @@ class Authenticator:
         return False
 
     def get_user(self, username):
-        print(username)
         self.cursor.execute("SELECT * FROM users WHERE username=?", (username,))
         return self.cursor.fetchone()
 
