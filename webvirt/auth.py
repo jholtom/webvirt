@@ -18,6 +18,10 @@ class Authenticator:
         self.db = sqlite3.connect(self.path)
         self.cursor = self.db.cursor()
 
+    def __del__(self):
+        self.db.commit()
+        self.db.close()
+
     def authenticate_user(self, username, password):
         if not self.check_password(username, password):
             return False
