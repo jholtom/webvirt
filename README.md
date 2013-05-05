@@ -14,14 +14,16 @@ In order to use WebVirt, the following dependencies must be installed:
 * [web.py](http://www.webpy.org)
 * [libvirt](http://www.libvirt.org)
 * [BeautifulSoup](http://www.crummy.com/software/BeautifulSoup)
+* [py-bcrypt](http://code.google.com/p/py-bcrypt)
+* [sqlite](http://www.sqlite.org)
 
 
 License
 -------
 See the file titled 'LICENSE' for licensing information. Additionally,
 WebVirt is distributed with the following software, each of which
-is bound by it's own licensing terms:
+is bound by its own licensing terms:
     
 * [pymagic](http://pypi.python.org/pypi/pymagic)
 * [hurry](http://pypi.python.org/pypi/hurry.filesize)
-* [novnc](https://github.com/kanaka/noVNC)
+* [novnc](http://github.com/kanaka/noVNC)

@@ -16,7 +16,9 @@ from hurry.filesize import size as hsize
 
 class Index:
     def GET(self):
-        auth.verify_auth("http://{0}{1}/login".format(config.site,config.urlprefix))
+        authenticator = auth.Authenticator()
+        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
+            config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         content = ""
         numVMs = float(len(conn.listAllDomains(0)))
@@ -54,9 +56,9 @@ class Index:
 
 class VM:
     def GET(self):
-        cookies = web.cookies()
-        if cookies.get("session") == None:
-            web.seeother("http://{0}{1}/login".format(config.site,config.urlprefix))
+        authenticator = auth.Authenticator()
+        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
+            config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         data2 = web.input()
         content = ""
@@ -110,9 +112,9 @@ class VM:
 
 class Create:
     def GET(self):
-        cookies = web.cookies()
-        if cookies.get("session") == None:
-            web.seeother("http://{0}{1}/login".format(config.site,config.urlprefix))
+        authenticator = auth.Authenticator()
+        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
+            config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         myform = web.form.Form( 
                 web.form.Textbox("name",web.form.notnull,description="Name of Virtual Machine: ",align='left'),
@@ -159,29 +161,29 @@ class Auth:
         web.header('Content-type', 'text/html')
         return "<h1>Incorrect method</h1>"
 
-    def POST(self):
+    def POST(self): 
+        authenticator = auth.Authenticator()
         data = web.input()
-        try:
-            username = data['username']
-            password = data['password']
-            if auth.authuser(username, password):
-                if 'redirect' in data:
-                    web.seeother(data['redirect'])
-                else:
-                    web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
+        username = data['username']
+        password = data['password']
+        if authenticator.authenticate_user(username, password):
+            if 'redirect' in data:
+                web.seeother(data['redirect'])
             else:
-                web.seeother("http://{0}{1}/login?failed=1".format(config.site,config.urlprefix))
-        except Exception as e:
-            return "Caught " + str(e) + " on login auth"
+                web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
+        else:
+            web.seeother("http://{0}{1}/login?failed=1".format(config.site,config.urlprefix))
 
 class Logout:
     def GET(self):
-        auth.destroy_session()
+        authenticator = auth.Authenticator()
+        authenticator.destroy_session()
         web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
 
 class Login:
     def GET(self):
-        if auth.verify_auth():
+        authenticator = auth.Authenticator()
+        if authenticator.verify_user():
             web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         data = web.input()
@@ -192,7 +194,9 @@ class Login:
 
 class List:
     def GET(self):
-        auth.verify_auth("http://{0}{1}/login".format(config.site,config.urlprefix))
+        authenticator = auth.Authenticator()
+        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
+            config.urlprefix))
         data = []
         for dom in conn.listAllDomains(0):
             data[dom] = Domain(dom)
@@ -200,7 +204,9 @@ class List:
 
 class Console:
     def GET(self):
-        auth.verify_auth("http://{0}{1}/login".format(config.site,config.urlprefix))
+        authenticator = auth.Authenticator()
+        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
+            config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         return templates.console()
 
@@ -243,9 +249,9 @@ class Upload:
 
 class HD:
     def GET(self):
-       cookies = web.cookies()
-       if cookies.get("session") == None:
-           web.seeother("http://{0}{1}/login".format(config.site,config.urlprefix))
+       authenticator = auth.Authenticator()
+       authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
+            config.urlprefix))
        templates = web.template.render('webvirt/templates/')
        myform = web.form.Form(
                web.form.Textbox("name",web.form.notnull,description="Name of Hard Drive: ",align='left'),
@@ -278,7 +284,9 @@ class HD:
 
 class ListHD:
     def GET(self):
-        auth.verify_auth("http://{0}{1}/login".format(config.site,config.urlprefix))
+        authenticator = auth.Authenticator()
+        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
+            config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         if os.access(config.datadir,os.F_OK) == False:
             os.mkdir(config.datadir)
@@ -308,7 +316,9 @@ class ListHD:
 
 class ListISOs:
     def GET(self):
-        auth.verify_auth("http://{0}{1}/login".format(config.site,config.urlprefix))
+        authenticator = auth.Authenticator()
+        authenticator.verify_redirect("http://{0}{1}/login".format(config.site, 
+            config.urlprefix))
         templates = web.template.render('webvirt/templates/')
         files = os.listdir(config.datadir)
         files = [x for x in files if x.endswith('.iso')]
