@@ -7,7 +7,7 @@ port = "" # default = "" (port 80)
 domain = "example.com" # default = example.com
 site = domain
 if port != "":
-    site + ':' + port
+    site += ':' + port
 urlprefix = "/webvirt" # default = /webvirt
 datadir = "/var/webvirt/" # default = /var/webvirt/
-db_path = "webvirt/webvirt.db"
+db_path = "webvirt/webvirt.db" # default = webvirt/webvirt.db
