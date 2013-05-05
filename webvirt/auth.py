@@ -5,13 +5,16 @@ import random
 import sqlite3
 import time
 import web
+import os
 
 class Authenticator:
     def __init__(self):
         try:
             self.path = config.db_path
         except:
-            self.path = "webvirt.db"
+            self.path = "webvirt/webvirt.db"
+        if os.path.isfile(self.path) == False:
+            raise Exception("db does not exist. have you run setupdb.sh?")
         self.db = sqlite3.connect(self.path)
         self.cursor = self.db.cursor()
 
