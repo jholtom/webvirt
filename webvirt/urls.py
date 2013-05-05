@@ -98,7 +98,8 @@ class VM:
         else:
             button = ""
             common.setupProxy(vncport)
-        content += "<a href='http://{0}/static/novnc/vnc.html?host={1}&port={2}'><button {3} class=\"btn btn-info\">Launch Display Connection</button></a>".format(config.site,config.domain,vncport+1000,button)
+        site = config.site.split(':')[0]
+        content += "<a href='http://{0}/static/novnc/vnc.html?host={1}&port={2}'><button {3} class=\"btn btn-info\">Launch Display Connection</button></a>".format(config.site,site,vncport+1000,button)
         data = ""
         for dom in conn.listAllDomains(0):
             dom = virt.Domain(dom)
