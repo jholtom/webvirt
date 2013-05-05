@@ -94,3 +94,16 @@ class HostServer:
         virdom = conn.defineXML(str(xml))
         self.domains.append(virdom)
         return dom
+
+def virt_processor(handle):
+    conn = libvirt.open(None)
+    web.ctx.libvirt = conn
+    web.ctx.proxylist = {}
+    ret = handle()
+    virt_cleanup(conn)
+    return ret
+
+def virt_cleanup(conn, proxylist={}):
+    for proc in proxylist.itervalues():
+        proc.terminate()
+    conn.close()

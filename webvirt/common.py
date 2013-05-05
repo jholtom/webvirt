@@ -2,7 +2,6 @@
     Common functions
 """
 
-import atexit
 import config
 import libvirt
 import subprocess
@@ -67,17 +66,3 @@ def run_proc(exe):
         yield line
         if retcode is not None:
             break
-
-# Cleanup hypervisor connection
-def virt_cleanup():
-    global conn, proxylist
-    for proc in proxylist.itervalues():
-        proc.terminate()
-    conn.close()
-
-### On-import executions ###
-
-# Open connection to local hypervisor
-conn = libvirt.open(None)
-# Register exit function
-atexit.register(virt_cleanup)
