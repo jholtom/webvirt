@@ -96,7 +96,8 @@ class VM:
         else:
             button = ""
             common.setupProxy(vncport)
-        content += "<a href='http://{0}/static/novnc/vnc.html?host={1}&port={2}'><button {3} class=\"btn btn-info\">Launch Display Connection</button></a>".format(config.site,config.domain,vncport+1000,button)
+        site = web.ctx.host.split(':')[0]
+        content += "<a href='{0}/static/novnc/vnc.html?host={1}&port={2}'><button {3} class=\"btn btn-info\">Launch Display Connection</button></a>".format(config.urlprefix,site,vncport+1000,button)
         data = ""
         for dom in conn.listAllDomains(0):
             dom = virt.Domain(dom)
@@ -151,7 +152,7 @@ class Create:
         else:
             hs = virt.HostServer()
             hs.createDomain(form['name'].value, form['mem'].value, form['cpu'].value, form['hd'].value, form['iso'].value, form['vnc'].value ,form['pts'].value)
-            web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
+            web.seeother(config.urlprefix)
 
 class Auth:
     def GET(self):
@@ -167,15 +168,15 @@ class Auth:
             if 'redirect' in data:
                 web.seeother(data['redirect'])
             else:
-                web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
+                web.seeother(config.urlprefix)
         else:
-            web.seeother("http://{0}{1}/login?failed=1".format(config.site,config.urlprefix))
+            web.seeother("{0}/login?failed=1".format(config.urlprefix))
 
 class Logout:
     def GET(self):
         authenticator = web.ctx.authenticator
         authenticator.destroy_session()
-        web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
+        web.seeother(config.urlprefix)
 
 class Login:
     def GET(self):
@@ -184,9 +185,9 @@ class Login:
         templates = web.template.render('webvirt/templates/')
         data = web.input()
         if "failed" in data:
-            return templates.login('<span><p style="color:#FF0000">Failed Login</p></span>', config.site, config.urlprefix)
+            return templates.login('<span><p style="color:#FF0000">Failed Login</p></span>', config.urlprefix)
         else:
-            return templates.login('', config.site, config.urlprefix)
+            return templates.login('', config.urlprefix)
 
 class List:
     def GET(self):
@@ -240,8 +241,8 @@ class Upload:
             fout.close() # closes the file, upload complete.
             if magic.from_file(config.datadir + filename, mime=True) != "application/x-iso9660-image":
                 os.remove(config.datadir + filename)
-                raise web.seeother('http://{0}{1}/upload?bad=1'.format(config.site,config.urlprefix))
-        raise web.seeother('http://{0}{1}/upload'.format(config.site,config.urlprefix))
+                raise web.seeother('{0}/upload?bad=1'.format(config.urlprefix))
+        raise web.seeother('{0}/upload'.format(config.urlprefix))
 
 class HD:
     def GET(self):
@@ -275,7 +276,7 @@ class HD:
            return render.formtest(form)
        else:
            os.system('cd ' + config.datadir +  ' && qemu-img create ' + form['name'].value + ".qcow2 " + form['size'].value + 'G')
-           web.seeother("http://{0}{1}".format(config.site,config.urlprefix))
+           web.seeother(config.urlprefix)
 
 class ListHD:
     def GET(self):

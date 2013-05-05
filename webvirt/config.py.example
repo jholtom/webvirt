@@ -3,11 +3,6 @@ WebVirt Configuration
 """
 
 name = "WebVirt" # default = WebVirt
-port = "" # default = "" (port 80)
-domain = "example.com" # default = example.com
-site = domain
-if port != "":
-    site += ':' + port
 urlprefix = "/webvirt" # default = /webvirt
 site_prefix = urlprefix # For Testing; Do not remove
 datadir = "/var/webvirt/" # default = /var/webvirt/
