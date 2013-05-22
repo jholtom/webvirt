@@ -2,7 +2,7 @@
     Common functions
 """
 
-import config
+from . import config
 import libvirt
 import subprocess
 import web

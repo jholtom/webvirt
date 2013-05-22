@@ -1,18 +1,18 @@
 """
     WebVirt URL Handlers
 """
-import auth
-import common
-from common import setupProxy
-import config
+from . import auth
+from . import common
+from .common import setupProxy
+from . import config
 import libvirt
-import virt
+from . import virt
 import web
 import os
-from pymagic import magic
+from .pymagic import magic
 import subprocess
 import sys
-from hurry.filesize import size as hsize
+from .hurry.filesize import size as hsize
 
 class Index:
     def GET(self):
@@ -64,7 +64,7 @@ class VM:
         content = ""
         vm = data2['vm']
         domObj = virt.Domain(conn.lookupByName(vm))
-        if 'action' in data2.keys():
+        if 'action' in list(data2.keys()):
             if data2['action'] == 'start':
                 domObj.startVM()
             elif data2['action'] == 'stop':
@@ -215,7 +215,7 @@ class Upload:
             web.seeother("{0}/login".format(config.site_prefix))
         params = web.input()
         conn = web.ctx.libvirt
-        if 'bad' in params.keys() and int(params['bad']) == 1:
+        if 'bad' in list(params.keys()) and int(params['bad']) == 1:
             return web.template.render("webvirt/templates/").index("<div class=\"alert\"><strong>Error! Your uploaded file was not an ISO file.</strong></div>", "", web.ctx.username)
         content = """
         <h2>Upload CDROM/DVDROM ISO file</h2>
@@ -298,7 +298,7 @@ class ListHD:
             for line in common.run_proc(['qemu-img', 'info', config.datadir + f]):
                 if "virtual size" in line:
                     sizes.append(line.split(' ')[2])
-        pack = zip(files, sizes)
+        pack = list(zip(files, sizes))
         contents='<h2>Available Hard Drives</h2><table class="table"><tr><td><b>Name</b></td><td><b>Size</b></td></tr>'
         for f, size in pack:
             contents += "<tr><td>" + config.datadir
@@ -326,7 +326,7 @@ class ListISOs:
         sizes = []
         for f in files:
             sizes.append(hsize(os.path.getsize(config.datadir + f)))
-        pack = zip(files, sizes)
+        pack = list(zip(files, sizes))
         contents = '<h2>Available ISOs</h2><table class="table"><tr><td><b>Name</b></td><td><b>Size</b></td></tr>'
         for f, size in pack:
             contents += "<tr><td>" + config.datadir

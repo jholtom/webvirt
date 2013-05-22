@@ -1,5 +1,5 @@
 import libvirt
-from common import getState
+from .common import getState
 from bs4 import BeautifulSoup
 import web
 
@@ -106,6 +106,6 @@ def virt_processor(handle):
     return ret
 
 def virt_cleanup(conn, proxylist={}):
-    for proc in proxylist.itervalues():
+    for proc in proxylist.values():
         proc.terminate()
     conn.close()

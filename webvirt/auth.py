@@ -1,5 +1,5 @@
 import bcrypt
-import config
+from . import config
 import hashlib
 import random
 import sqlite3
