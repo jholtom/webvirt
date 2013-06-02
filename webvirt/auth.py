@@ -92,9 +92,8 @@ def authentication_processor(handle):
     if user:
         web.ctx.username = user
         web.ctx.auth = True
-        web.ctx.authenticator = authenticator
     else:
         web.ctx.username = False
         web.ctx.auth = False
-        web.ctx.authenticator = authenticator
+    web.ctx.authenticator = authenticator
     return handle()
