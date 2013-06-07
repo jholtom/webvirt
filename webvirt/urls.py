@@ -47,17 +47,17 @@ class Index:
         else:
             bar = 'bar-danger'
         content += str(templates.host(hs.hostname, hs.hosttype, usedmem, bar))
-        running = []
-        dead = []
         suspended = []
+        dead = []
+        running = []
         for dom in conn.listAllDomains(0):
             dom = virt.Domain(dom)
             if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
-                running.append(dom)
+                running.append({'name':dom.name, 'state':dom.state})
             elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF):
-                dead.append(dom)
+                dead.append({'name':dom.name, 'state':dom.state})
             else:
-                suspended.append(dom)
+                suspended.append({'name':dom.name, 'state':dom.state})
 
         sidebar = env.get_template('sidebar.html')
         data += sidebar.render(running=running,suspended=suspended,dead=dead)
