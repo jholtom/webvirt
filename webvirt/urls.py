@@ -49,7 +49,7 @@ class Index:
         content += str(templates.host(hs.hostname, hs.hosttype, usedmem, bar))
         running = {}
         dead = {}
-        suspended {}
+        suspended = {}
         for dom in conn.listAllDomains(0):
             dom = virt.Domain(dom) %}
             if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
