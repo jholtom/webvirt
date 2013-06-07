@@ -1,9 +1,9 @@
-{% for dom in conn.listAllDomains(0) %}
-{% dom = virt.Domain(dom) %}
-{% if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING) %}
+{% for dom in running %}
 <li><a href='{{ config.urlprefix }}/vm?vm={1}'>{{ dom.name }}<div class='pull-right'><span class='label label-success'>{{ dom.state }}</span></div></a></li>
-{{ elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF) }}
+{% endfor %}
+{% for dom in dead %}
 <li><a href='{{ config.urlprefix }}/vm?vm={1}'>{{ dom.name }}<div class='pull-right'><span class='label label-important'>{{ dom.state }}</span></div></a></li>
-{{ else }}
+{% endfor %}
+{% for dom in suspended %}
 <li><a href='{{ config.urlprefix }}/vm?vm={1}'>{{ dom.name }}<div class='pull-right'><span class='label label-warning'>{{ dom.state }}</span></div></a></li>
 {% endfor %}
