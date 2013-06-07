@@ -51,7 +51,7 @@ class Index:
         dead = {}
         suspended = {}
         for dom in conn.listAllDomains(0):
-            dom = virt.Domain(dom) %}
+            dom = virt.Domain(dom)
             if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
                 running.append(dom)
             elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF):
