@@ -2,7 +2,7 @@
 <li><a href='{{ config }}/vm?vm={1}'>{{ dom.name }}<div class='pull-right'><span class='label label-success'>{{ dom.state }}</span></div></a></li>
 {% endfor %}
 {% for dom in dead %}
-<li><a href='{{ config}}/vm?vm={1}'>{{ dom.name }}<div class='pull-right'><span class='label label-important'>{{ dom.state }}</span></div></a></li>
+<li><a href='{{ config }}/vm?vm={1}'>{{ dom.name }}<div class='pull-right'><span class='label label-important'>{{ dom.state }}</span></div></a></li>
 {% endfor %}
 {% for dom in suspended %}
 <li><a href='{{ config }}/vm?vm={1}'>{{ dom.name }}<div class='pull-right'><span class='label label-warning'>{{ dom.state }}</span></div></a></li>
