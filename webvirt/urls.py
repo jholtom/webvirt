@@ -13,9 +13,9 @@ from .pymagic import magic
 import subprocess
 import sys
 from .hurry.filesize import size as hsize
-from jinja2 import Environment, PackageLoader
+from jinja2 import Environment, FileSystemLoader
 
-env = Environment(loader=FileSystemLoader('templates'))
+env = Environment(loader=FileSystemLoader('webvirt/templates'))
 
 class Index:
     def GET(self):
