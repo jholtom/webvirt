@@ -47,8 +47,20 @@ class Index:
         else:
             bar = 'bar-danger'
         content += str(templates.host(hs.hostname, hs.hosttype, usedmem, bar))
+        running = {}
+        dead = {}
+        suspended {}
+        for dom in conn.listAllDomains(0):
+            dom = virt.Domain(dom) %}
+            if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
+                running.append(dom)
+            elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF):
+                dead.append(dom)
+            else:
+                suspended.append(dom)
+
         sidebar = env.get_template('sidebar.html')
-        data += sidebar.render(conn)
+        data += sidebar.render(running,suspended,dead)
         return templates.index(content, data, web.ctx.username, config.urlprefix)
 
 class VM:
