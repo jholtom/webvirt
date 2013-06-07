@@ -13,6 +13,9 @@ from .pymagic import magic
 import subprocess
 import sys
 from .hurry.filesize import size as hsize
+from jinja2 import Environment, PackageLoader
+
+env = Environment(loader=FileSystemLoader('templates'))
 
 class Index:
     def GET(self):
@@ -44,14 +47,8 @@ class Index:
         else:
             bar = 'bar-danger'
         content += str(templates.host(hs.hostname, hs.hosttype, usedmem, bar))
-        for dom in conn.listAllDomains(0):   
-            dom = virt.Domain(dom)
-            if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
-                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-success'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-            elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF):
-                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-            else:
-                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
+        sidebar = env.get_template('sidebar.html')
+        data += sidebar.render(conn)
         return templates.index(content, data, web.ctx.username, config.urlprefix)
 
 class VM:
