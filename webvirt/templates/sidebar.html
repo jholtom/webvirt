@@ -1,9 +1,9 @@
 {% for dom in running %}
-<li><a href='{{ config }}/vm?vm={{ dom.name }}'>{{ dom.name }}<div class='pull-right'><span class='label label-success'>{{ dom.state }}</span></div></a></li>
+<li><a href='{{ urlprefix }}/vm?vm={{ dom.name }}'>{{ dom.name }}<div class='pull-right'><span class='label label-success'>{{ dom.state }}</span></div></a></li>
 {% endfor %}
 {% for dom in dead %}
-<li><a href='{{ config }}/vm?vm={{ dom.name }}'>{{ dom.name }}<div class='pull-right'><span class='label label-important'>{{ dom.state }}</span></div></a></li>
+<li><a href='{{ urlprefix }}/vm?vm={{ dom.name }}'>{{ dom.name }}<div class='pull-right'><span class='label label-important'>{{ dom.state }}</span></div></a></li>
 {% endfor %}
 {% for dom in suspended %}
-<li><a href='{{ config }}/vm?vm={{ dom.name }}'>{{ dom.name }}<div class='pull-right'><span class='label label-warning'>{{ dom.state }}</span></div></a></li>
+<li><a href='{{ urlprefix }}/vm?vm={{ dom.name }}'>{{ dom.name }}<div class='pull-right'><span class='label label-warning'>{{ dom.state }}</span></div></a></li>
 {% endfor %}

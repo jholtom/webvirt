@@ -60,7 +60,7 @@ class Index:
                 suspended.append({'name':dom.name, 'state':dom.state})
 
         sidebar = env.get_template('sidebar.html')
-        data += sidebar.render(running=running,suspended=suspended,dead=dead, config=config.urlprefix)
+        data += sidebar.render(running=running,suspended=suspended,dead=dead, urlprefix=config.urlprefix)
         return templates.index(content, data, web.ctx.username, config.urlprefix)
 
 class VM:
