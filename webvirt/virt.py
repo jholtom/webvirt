@@ -42,7 +42,7 @@ class Domain:
                 }
 
     def getXML(self):
-        return BeautifulSoup(self.dom.XMLDesc(),'xml')
+        return BeautifulSoup(self.dom.XMLDesc(2),'xml')
 
     def setXML(self,xml):
         return web.ctx.libvirt.defineXML(str(xml))
