@@ -1,0 +1,14 @@
+<script src="lib/codemirror.js"></script>
+<link rel="stylesheet" href="lib/codemirror.css">
+<form name="domXML" method="post">
+$:form.render()
+<input type="submit" class="btn"/>
+</form>
+<script src="mode/javascript/javascript.js">
+var xmlEdit = CodeMirror.fromTextArea(xmleditingarea,
+{ 
+        value: "{{ xmlfile }}"
+        mode: "xml"
+        theme: "solarized"
+});
+</script>
