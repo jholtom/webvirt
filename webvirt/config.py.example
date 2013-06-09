@@ -1,9 +1,0 @@
-"""
-WebVirt Configuration
-"""
-
-name = "WebVirt" # default = WebVirt
-urlprefix = "/webvirt" # default = /webvirt
-site_prefix = urlprefix # For Testing; Do not remove
-datadir = "/var/webvirt/" # default = /var/webvirt/
-db_path = "webvirt/webvirt.db" # default = webvirt/webvirt.db

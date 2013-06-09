@@ -17,6 +17,22 @@ from jinja2 import Environment, FileSystemLoader
 
 env = Environment(loader=FileSystemLoader('webvirt/templates'))
 
+def sidebarGen(conn):
+	suspended = []
+        dead = []
+        running = []
+        for dom in conn.listAllDomains(0):
+            dom = virt.Domain(dom)
+            if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
+                running.append({'name':dom.name, 'state':dom.state})
+            elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF):
+                dead.append({'name':dom.name, 'state':dom.state})
+            else:
+                suspended.append({'name':dom.name, 'state':dom.state})
+
+        sidebar = env.get_template('sidebar.html')
+        return sidebar.render(running=running,suspended=suspended,dead=dead, urlprefix=config.urlprefix)
+
 class Index:
     def GET(self):
         if not web.ctx.auth:
@@ -47,21 +63,8 @@ class Index:
         else:
             bar = 'bar-danger'
         content += str(templates.host(hs.hostname, hs.hosttype, usedmem, bar))
-        suspended = []
-        dead = []
-        running = []
-        for dom in conn.listAllDomains(0):
-            dom = virt.Domain(dom)
-            if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
-                running.append({'name':dom.name, 'state':dom.state})
-            elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF):
-                dead.append({'name':dom.name, 'state':dom.state})
-            else:
-                suspended.append({'name':dom.name, 'state':dom.state})
-
-        sidebar = env.get_template('sidebar.html')
-        data += sidebar.render(running=running,suspended=suspended,dead=dead, urlprefix=config.urlprefix)
-        return templates.index(content, data, web.ctx.username, config.urlprefix)
+        data += sidebarGen(conn)
+	return templates.index(content, data, web.ctx.username, config.urlprefix)
 
 class VM:
     def GET(self):
@@ -110,15 +113,8 @@ class VM:
         site = web.ctx.host.split(':')[0]
         content += "<a href='{0}/static/novnc/vnc.html?host={1}&port={2}'><button {3} class=\"btn btn-info\">Launch Display Connection</button></a>".format(config.urlprefix,site,vncport+1000,button)
         data = ""
-        for dom in conn.listAllDomains(0):
-            dom = virt.Domain(dom)
-            if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
-                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-success'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-            elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF):
-                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-            else:
-                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.vm(content, data, vm, web.ctx.username, config.urlprefix)
+        data += sidebarGen(conn)
+	return templates.vm(content, data, vm, web.ctx.username, config.urlprefix)
 
 class Create:
     def GET(self):
@@ -138,15 +134,8 @@ class Create:
         form = myform()
         data = ""
         content = "<h2>Create a New VM</h2>"
-        for dom in conn.listAllDomains(0):
-            dom = virt.Domain(dom)
-            if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
-                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-success'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-            elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF):
-                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-            else:
-                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.create(content, data, form, web.ctx.username, config.urlprefix)
+        data += sidebarGen(conn)
+	return templates.create(content, data, form, web.ctx.username, config.urlprefix)
 
     def POST(self): 
         myform = web.form.Form( 
@@ -234,15 +223,8 @@ class Upload:
         <input type="submit" />
         </form>"""
         data = ""
-        for dom in conn.listAllDomains(0):
-            dom = virt.Domain(dom)
-            if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
-                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-success'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-            elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF):
-                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-            else:
-                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        templates = web.template.render("webvirt/templates/")
+        data += sidebarGen(conn)
+	templates = web.template.render("webvirt/templates/")
         return templates.index(content, data, web.ctx.username, config.urlprefix)
 
     def POST(self):
@@ -271,14 +253,7 @@ class HD:
        conn = web.ctx.libvirt
        data = ""
        content = "<h2>Create a New Virtual Machine Hard Drive</h2>"
-       for dom in conn.listAllDomains(0):
-           dom = virt.Domain(dom)
-           if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
-               data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-success'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-           elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF):
-               data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-           else:
-               data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
+       data += sidebarGen(conn)
        return templates.create(content, data, form, web.ctx.username, config.urlprefix)
 
     def POST(self):
@@ -315,15 +290,8 @@ class ListHD:
         contents += "</table>"
         data = ""
         conn = web.ctx.libvirt
-        for dom in conn.listAllDomains(0):
-            dom = virt.Domain(dom)
-            if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
-                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-success'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-            elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF):
-                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-            else:
-                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.index(contents, data, web.ctx.username, config.urlprefix)
+        data += sidebarGen(conn)
+	return templates.index(contents, data, web.ctx.username, config.urlprefix)
 
 class ListISOs:
     def GET(self):
@@ -343,14 +311,7 @@ class ListISOs:
         contents += "</table>"
         data = ""
         conn = web.ctx.libvirt
-        for dom in conn.listAllDomains(0):
-            dom = virt.Domain(dom)
-            if(dom.rawstate == libvirt.VIR_DOMAIN_RUNNING):
-                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-success'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-            elif(dom.rawstate == libvirt.VIR_DOMAIN_SHUTOFF):
-                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-important'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-            else:
-                data += "<li><a href='{0}/vm?vm={1}'>{1}<div class='pull-right'><span class='label label-warning'>{2}</span></div></a></li>".format(config.urlprefix,dom.name,dom.state)
-        return templates.index(contents, data, web.ctx.username, config.urlprefix)
+        data += sidebarGen(conn)
+	return templates.index(contents, data, web.ctx.username, config.urlprefix)
 
 classes  = globals()
