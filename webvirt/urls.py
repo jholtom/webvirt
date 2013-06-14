@@ -1,20 +1,22 @@
 """
     WebVirt URL Handlers
 """
-from . import auth
-from . import common
-from .common import setupProxy
-import routing
-from . import config
+
+from jinja2 import Environment, FileSystemLoader
 import libvirt
-from . import virt
-import web
 import os
-from .pymagic import magic
 import subprocess
 import sys
-from .hurry.filesize import size as hsize
-from jinja2 import Environment, FileSystemLoader
+import web
+
+from pymagic import magic
+from hurry.filesize import size as hsize
+
+import auth
+import common
+import config
+import routing
+import virt
 
 env = Environment(loader=FileSystemLoader('webvirt/templates'))
 

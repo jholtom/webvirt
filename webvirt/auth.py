@@ -1,11 +1,13 @@
 import bcrypt
-from . import config
 import hashlib
+import os
 import random
 import sqlite3
 import time
 import web
-import os
+
+import config
+
 
 class Authenticator:
     def __init__(self):
@@ -13,8 +15,7 @@ class Authenticator:
             self.path = config.db_path
         except:
             self.path = "webvirt/webvirt.db"
-        if os.path.isfile(self.path) == False:
-            raise Exception("db does not exist. have you run setupdb.sh?")
+        assert os.path.isfile(self.path), "db does not exist. please create it"
         self.db = sqlite3.connect(self.path)
         self.cursor = self.db.cursor()
 

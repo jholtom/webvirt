@@ -2,10 +2,11 @@
     Common functions
 """
 
-from . import config
 import libvirt
 import subprocess
 import web
+
+import config
 
 proxylist = {}
 

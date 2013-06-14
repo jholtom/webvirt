@@ -1,7 +1,8 @@
-import libvirt
-from .common import getState
 from bs4 import BeautifulSoup
+import libvirt
 import web
+
+from common import getState
 
 class Domain:
     def __init__(self, dom):
