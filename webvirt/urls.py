@@ -4,6 +4,7 @@
 from . import auth
 from . import common
 from .common import setupProxy
+import routing
 from . import config
 import libvirt
 from . import virt
@@ -34,6 +35,9 @@ def sidebarGen(conn):
         return sidebar.render(running=running,suspended=suspended,dead=dead, urlprefix=config.urlprefix)
 
 class Index:
+    __metaclass__ = routing.ControllerMeta
+    url = '/?'
+
     def GET(self):
         if not web.ctx.auth:
             web.seeother("{0}/login".format(config.site_prefix))
@@ -67,6 +71,9 @@ class Index:
 	return templates.index(content, data, web.ctx.username, config.urlprefix)
 
 class VM:
+    __metaclass__ = routing.ControllerMeta
+    url = '/vm/?'
+
     def GET(self):
         if not web.ctx.auth:
             web.seeother("{0}/login".format(config.site_prefix))
@@ -117,6 +124,9 @@ class VM:
 	return templates.vm(content, data, vm, web.ctx.username, config.urlprefix)
 
 class Create:
+    __metaclass__ = routing.ControllerMeta
+    url = '/create/?'
+
     def GET(self):
         if not web.ctx.auth:
             web.seeother("{0}/login".format(config.site_prefix))
@@ -156,6 +166,9 @@ class Create:
             web.seeother('/'+config.urlprefix)
 
 class Auth:
+    __metaclass__ = routing.ControllerMeta
+    url = '/auth/?'
+
     def GET(self):
         web.header('Content-type', 'text/html')
         return "<h1>Incorrect method</h1>"
@@ -174,12 +187,18 @@ class Auth:
             web.seeother("{0}/login?failed=1".format(config.urlprefix))
 
 class Logout:
+    __metaclass__ = routing.ControllerMeta
+    url = '/logout/?'
+
     def GET(self):
         authenticator = web.ctx.authenticator
         authenticator.destroy_session()
         web.seeother('/'+config.urlprefix)
 
 class Login:
+    __metaclass__ = routing.ControllerMeta
+    url = '/login/?'
+
     def GET(self):
         if web.ctx.auth:
             web.seeother("{0}/".format(config.site_prefix))
@@ -191,6 +210,9 @@ class Login:
             return templates.login('', config.urlprefix)
 
 class List:
+    __metaclass__ = routing.ControllerMeta
+    url = '/list/?'
+
     def GET(self):
         if not web.ctx.auth:
             web.seeother("{0}/login".format(config.site_prefix))
@@ -200,7 +222,10 @@ class List:
             data[dom] = Domain(dom)
         return web.template.render('webvirt/templates/').index(data)
 
-class Console:
+class Console: 
+    __metaclass__ = routing.ControllerMeta
+    url = '/console/?'
+
     def GET(self):
         if not web.ctx.auth:
             web.seeother("{0}/login".format(config.site_prefix))
@@ -208,6 +233,9 @@ class Console:
         return templates.console()
 
 class Upload:
+    __metaclass__ = routing.ControllerMeta
+    url = '/upload/?'
+
     def GET(self):
         if not web.ctx.auth:
             web.seeother("{0}/login".format(config.site_prefix))
@@ -241,6 +269,9 @@ class Upload:
         raise web.seeother('{0}/upload'.format(config.urlprefix))
 
 class HD:
+    __metaclass__ = routing.ControllerMeta
+    url = '/hd/?'
+
     def GET(self):
        if not web.ctx.auth:
             web.seeother("{0}/login".format(config.site_prefix))
@@ -269,6 +300,9 @@ class HD:
            web.seeother('/'+config.urlprefix)
 
 class ListHD:
+    __metaclass__ = routing.ControllerMeta
+    url = '/listhd/?'
+
     def GET(self):
         if not web.ctx.auth:
             web.seeother("{0}/login".format(config.site_prefix))
@@ -294,6 +328,9 @@ class ListHD:
 	return templates.index(contents, data, web.ctx.username, config.urlprefix)
 
 class ListISOs:
+    __metaclass__ = routing.ControllerMeta
+    url = '/listisos/?'
+
     def GET(self):
         if not web.ctx.auth:
             web.seeother("{0}/login".format(config.site_prefix))
@@ -313,5 +350,3 @@ class ListISOs:
         conn = web.ctx.libvirt
         data += sidebarGen(conn)
 	return templates.index(contents, data, web.ctx.username, config.urlprefix)
-
-classes  = globals()
