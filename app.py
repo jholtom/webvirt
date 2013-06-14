@@ -5,8 +5,7 @@ import webvirt
 urlprefix = webvirt.config.site_prefix
 
 urls = (
-        '{0}'.format(urlprefix), 'Index',
-        '{0}/'.format(urlprefix), 'Index',
+        '{0}/?'.format(urlprefix), 'Index',
         '{0}/auth'.format(urlprefix), 'Auth',
         '{0}/list'.format(urlprefix), 'List',
         '{0}/login'.format(urlprefix), 'Login',
